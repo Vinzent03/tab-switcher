@@ -11,7 +11,7 @@ _In Combination with Mr. Jackphils Jump to Link plugin and Vim Keybindings, this
 ---
 ### Manually installing the plugin
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/cycle-through-panes/`.
 
 ### API Documentation
 
