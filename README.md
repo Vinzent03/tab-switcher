@@ -1,5 +1,7 @@
 ## Cycle Through Panes
 
+__This Plugin uses Code from [Vinadon](https://github.com/Vinzent03)__
+
 This is a plugin for Obsidian (https://obsidian.md).
 
 This project uses Typescript to provide type checking and documentation.
