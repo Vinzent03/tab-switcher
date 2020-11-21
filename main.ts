@@ -1,83 +1,37 @@
-import { App, Modal, Notice, Plugin, PluginSettingTab, Setting } from 'obsidian';
+import { App, Modal, Notice, Plugin, PluginSettingTab, Setting, WorkspaceLeaf, View } from 'obsidian';
 
-export default class MyPlugin extends Plugin {
+export default class CycleThroughPanes extends Plugin {
 	onload() {
-		console.log('loading plugin');
-
-		this.addRibbonIcon('dice', 'Sample Plugin', () => {
-			new Notice('This is a notice!');
-		});
-
-		this.addStatusBarItem().setText('Status Bar Text');
+		console.log('loading plugin: Cycle through panes');
 
 		this.addCommand({
-			id: 'open-sample-modal',
-			name: 'Open Sample Modal',
-			// callback: () => {
-			// 	console.log('Simple Callback');
-			// },
-			checkCallback: (checking: boolean) => {
-				let leaf = this.app.workspace.activeLeaf;
-				if (leaf) {
-					if (!checking) {
-						new SampleModal(this.app).open();
-					}
-					return true;
-				}
-				return false;
-			}
-		});
+            id: 'cycle-through-panes',
+            name: 'Cycle through panes',
+            callback: () => {
+                let active = this.app.workspace.activeLeaf;
+                let leafs: WorkspaceLeaf[] = []
+                this.app.workspace.iterateAllLeaves((leaf) => {
+                    if (leaf.getViewState().type == "markdown")
+                        leafs.push(leaf);
+                })
+                let index = leafs.indexOf(active);
+				if (index == leafs.length - 1)
+                    this.app.workspace.setActiveLeaf(leafs[0])
+                else
+                    this.app.workspace.setActiveLeaf(leafs[index + 1])
 
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+            }, hotkeys: [
+                {
+                    modifiers: ["Mod"],
+                    key: "Tab"
+                }
+            ]
 
-		this.registerEvent(this.app.on('codemirror', (cm: CodeMirror.Editor) => {
-			console.log('codemirror', cm);
-		}));
+        });
 
-		this.registerDomEvent(document, 'click', (evt: MouseEvent) => {
-			console.log('click', evt);
-		});
-
-		this.registerInterval(window.setInterval(() => console.log('setInterval'), 5 * 60 * 1000));
 	}
 
 	onunload() {
-		console.log('unloading plugin');
-	}
-}
-
-class SampleModal extends Modal {
-	constructor(app: App) {
-		super(app);
-	}
-
-	onOpen() {
-		let {contentEl} = this;
-		contentEl.setText('Woah!');
-	}
-
-	onClose() {
-		let {contentEl} = this;
-		contentEl.empty();
-	}
-}
-
-class SampleSettingTab extends PluginSettingTab {
-	display(): void {
-		let {containerEl} = this;
-
-		containerEl.empty();
-
-		containerEl.createEl('h2', {text: 'Settings for my awesome plugin.'});
-
-		new Setting(containerEl)
-			.setName('Setting #1')
-			.setDesc('It\'s a secret')
-			.addText(text => text.setPlaceholder('Enter your secret')
-				.setValue('')
-				.onChange((value) => {
-					console.log('Secret: ' + value);
-				}));
-
+		console.log('unloading plugin: Cycle through panes');
 	}
 }
