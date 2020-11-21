@@ -1,6 +1,7 @@
 ## Cycle Through Panes
 
 __This Plugin uses Code from [Vinadon](https://github.com/Vinzent03)__
+_In Combination with Mr. Jackphils Jump to Link plugin and Vim Keybindings, this plugin allows you to control Obsidian entirely without a Mouse!_
 
 This is a plugin for Obsidian (https://obsidian.md).
 
