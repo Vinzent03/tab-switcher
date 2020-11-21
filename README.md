@@ -1,4 +1,4 @@
-# Cycle Through Panes ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/phibr0/cycle-through-panes) ![GitHub all releases](https://img.shields.io/github/downloads/phibr0/cycle-through-panes/total)
+# Cycle through Panes ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/phibr0/cycle-through-panes) ![GitHub all releases](https://img.shields.io/github/downloads/phibr0/cycle-through-panes/total)
 
 __This Plugin uses Code from [Vinadon](https://github.com/Vinzent03)__
 
