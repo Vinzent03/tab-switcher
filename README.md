@@ -1,15 +1,17 @@
-## Cycle Through Panes
+# Cycle through Panes ![GitHub tag (latest by date)](https://img.shields.io/github/v/tag/phibr0/cycle-through-panes) ![GitHub all releases](https://img.shields.io/github/downloads/phibr0/cycle-through-panes/total)
 
-This is a plugin for Obsidian (https://obsidian.md).
+__This Plugin uses Code from [Vinadon](https://github.com/Vinzent03)__
 
-This project uses Typescript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in Typescript Definition format, which contains TSDoc comments describing what it does.
+_In Combination with Mr. Jackphils Jump to Link plugin and Vim Keybindings, this plugin allows you to control Obsidian entirely without a Mouse!_
 
-**Note:** The Obsidian API is still in early alpha and is subject to change at any time!
+## How to use
 
+- `Ctrl + Tab` to switch open Editor/Preview Tabs
+
+---
 ### Manually installing the plugin
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/cycle-through-panes/`.
 
 ### API Documentation
 
