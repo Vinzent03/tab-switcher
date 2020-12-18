@@ -15,10 +15,14 @@ export default class CycleThroughPanes extends Plugin {
                         leafs.push(leaf);
                 })
                 let index = leafs.indexOf(active);
-				if (index == leafs.length - 1)
-                    this.app.workspace.setActiveLeaf(leafs[0])
-                else
+                if (index == leafs.length - 1) {
+                    this.app.workspace.setActiveLeaf(leafs[0]);
+                    fixCursor(leafs[0]);
+                }
+                else {
                     this.app.workspace.setActiveLeaf(leafs[index + 1])
+                    fixCursor(leafs[index + 1])
+                }
 
             }, hotkeys: [
                 {
@@ -28,6 +32,11 @@ export default class CycleThroughPanes extends Plugin {
             ]
 
         });
+        function fixCursor(newLeaf: WorkspaceLeaf) {
+            let view = newLeaf.view as MarkdownView;
+            let editor = view.sourceMode.cmEditor;
+            editor.focus()
+        }
 
         this.addCommand({
             id: 'cycle-through-panes-reverse',
@@ -40,10 +49,14 @@ export default class CycleThroughPanes extends Plugin {
                         leafs.push(leaf);
                 })
                 let index = leafs.indexOf(active);
-				if (index == 0)
-                    this.app.workspace.setActiveLeaf(leafs[leafs.length-1])
-                else
+                if (index == 0) {
+                    this.app.workspace.setActiveLeaf(leafs[leafs.length - 1])
+                    fixCursor(leafs[leafs.length - 1])
+                }
+                else {
                     this.app.workspace.setActiveLeaf(leafs[index - 1])
+                    fixCursor(leafs[index - 1])
+                }
 
             }, hotkeys: [
                 {
