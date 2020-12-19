@@ -1,27 +1,27 @@
-import { App, Modal, Notice, Plugin, PluginSettingTab, Setting, WorkspaceLeaf, View } from 'obsidian';
+import { App, MarkdownView, Plugin, WorkspaceLeaf } from 'obsidian';
 
 export default class CycleThroughPanes extends Plugin {
-	onload() {
-		console.log('loading plugin: Cycle through panes');
+    onload() {
+        console.log('loading plugin: Cycle through panes');
 
-		this.addCommand({
+        this.addCommand({
             id: 'cycle-through-panes',
             name: 'Cycle through panes',
             callback: () => {
                 let active = this.app.workspace.activeLeaf;
                 let leafs: WorkspaceLeaf[] = []
                 this.app.workspace.iterateAllLeaves((leaf) => {
-                    if (leaf.getViewState().type == "markdown")
-                        leafs.push(leaf);
+                    if (leaf.getViewState().type == "markdown") {
+                        if (leaf.getRoot() === this.app.workspace.rootSplit)
+                            leafs.push(leaf);
+                    }
                 })
                 let index = leafs.indexOf(active);
                 if (index == leafs.length - 1) {
-                    this.app.workspace.setActiveLeaf(leafs[0]);
-                    fixCursor(leafs[0]);
+                    setActiveLeaf(leafs[0], this.app)
                 }
                 else {
-                    this.app.workspace.setActiveLeaf(leafs[index + 1])
-                    fixCursor(leafs[index + 1])
+                    setActiveLeaf(leafs[index + 1], this.app)
                 }
 
             }, hotkeys: [
@@ -32,6 +32,11 @@ export default class CycleThroughPanes extends Plugin {
             ]
 
         });
+        function setActiveLeaf(newLeaf: WorkspaceLeaf, app: App) {
+            app.workspace.setActiveLeaf(newLeaf)
+            fixCursor(newLeaf)
+        }
+
         function fixCursor(newLeaf: WorkspaceLeaf) {
             let view = newLeaf.view as MarkdownView;
             let editor = view.sourceMode.cmEditor;
@@ -46,16 +51,15 @@ export default class CycleThroughPanes extends Plugin {
                 let leafs: WorkspaceLeaf[] = []
                 this.app.workspace.iterateAllLeaves((leaf) => {
                     if (leaf.getViewState().type == "markdown")
-                        leafs.push(leaf);
+                        if (leaf.getRoot() === this.app.workspace.rootSplit)
+                            leafs.push(leaf);
                 })
                 let index = leafs.indexOf(active);
                 if (index == 0) {
-                    this.app.workspace.setActiveLeaf(leafs[leafs.length - 1])
-                    fixCursor(leafs[leafs.length - 1])
+                    setActiveLeaf(leafs[leafs.length - 1], this.app)
                 }
                 else {
-                    this.app.workspace.setActiveLeaf(leafs[index - 1])
-                    fixCursor(leafs[index - 1])
+                    setActiveLeaf(leafs[index - 1], this.app)
                 }
 
             }, hotkeys: [
@@ -67,9 +71,9 @@ export default class CycleThroughPanes extends Plugin {
 
         });
 
-	}
+    }
 
-	onunload() {
-		console.log('unloading plugin: Cycle through panes');
-	}
+    onunload() {
+        console.log('unloading plugin: Cycle through panes');
+    }
 }
