@@ -7,6 +7,13 @@ _In Combination with Mr. Jackphils Jump to Link plugin and Vim Keybindings, this
 ## How to use
 
 - `Ctrl + Tab` to switch open Editor/Preview Tabs
+- `Ctrl + Shift + Tab` to switch open Editor/Preview Tabs in reverse order
+- Set hotkey in settings to focus on last active pane
+
+### Important
+
+The only supported pane type is markdown, because I thought its the only pane type where it makes sense to switch to.
+
 
 ---
 ### Manually installing the plugin
