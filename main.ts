@@ -10,38 +10,38 @@ export default class CycleThroughPanes extends Plugin {
             name: 'Cycle through panes',
             callback: () => {
                 let active = this.app.workspace.activeLeaf;
-                let leafs: WorkspaceLeaf[] = []
+                let leafs: WorkspaceLeaf[] = [];
                 this.app.workspace.iterateAllLeaves((leaf) => {
                     if (leaf.getViewState().type == "markdown") {
                         if (leaf.getRoot() === this.app.workspace.rootSplit)
                             leafs.push(leaf);
                     }
-                })
+                });
                 let index = leafs.indexOf(active);
                 if (index == leafs.length - 1) {
-                    setActiveLeaf(leafs[0], this.app)
+                    setActiveLeaf(leafs[0], this.app);
                 }
                 else {
-                    setActiveLeaf(leafs[index + 1], this.app)
+                    setActiveLeaf(leafs[index + 1], this.app);
                 }
 
             }, hotkeys: [
                 {
-                    modifiers: ["Mod"],
+                    modifiers: ["Ctrl"],
                     key: "Tab"
                 }
             ]
 
         });
         function setActiveLeaf(newLeaf: WorkspaceLeaf, app: App) {
-            app.workspace.setActiveLeaf(newLeaf)
-            fixCursor(newLeaf)
+            app.workspace.setActiveLeaf(newLeaf);
+            fixCursor(newLeaf);
         }
 
         function fixCursor(newLeaf: WorkspaceLeaf) {
             let view = newLeaf.view as MarkdownView;
             let editor = view.sourceMode.cmEditor;
-            editor.focus()
+            editor.focus();
         }
 
         this.addCommand({
@@ -49,23 +49,23 @@ export default class CycleThroughPanes extends Plugin {
             name: 'Cycle through panes (Reverse)',
             callback: () => {
                 let active = this.app.workspace.activeLeaf;
-                let leafs: WorkspaceLeaf[] = []
+                let leafs: WorkspaceLeaf[] = [];
                 this.app.workspace.iterateAllLeaves((leaf) => {
                     if (leaf.getViewState().type == "markdown")
                         if (leaf.getRoot() === this.app.workspace.rootSplit)
                             leafs.push(leaf);
-                })
+                });
                 let index = leafs.indexOf(active);
                 if (index == 0) {
-                    setActiveLeaf(leafs[leafs.length - 1], this.app)
+                    setActiveLeaf(leafs[leafs.length - 1], this.app);
                 }
                 else {
-                    setActiveLeaf(leafs[index - 1], this.app)
+                    setActiveLeaf(leafs[index - 1], this.app);
                 }
 
             }, hotkeys: [
                 {
-                    modifiers: ["Mod", "Shift"],
+                    modifiers: ["Ctrl", "Shift"],
                     key: "Tab"
                 }
             ]
@@ -75,7 +75,7 @@ export default class CycleThroughPanes extends Plugin {
         this.app.workspace.on("file-open", () => {
             //use just markdown panes
             if (this.app.workspace.activeLeaf.getViewState().type != "markdown") {
-                return
+                return;
             }
             //if a file gets opened in current pane
             if (this.lastPanes?.last() == this.app.workspace.activeLeaf.id) {
@@ -83,10 +83,10 @@ export default class CycleThroughPanes extends Plugin {
             }
             //keep a history of 10 panes
             if (this.lastPanes.length > 10) {
-                this.lastPanes.splice(0, 1)
+                this.lastPanes.splice(0, 1);
             }
             //add current pane to history
-            this.lastPanes.push(this.app.workspace.activeLeaf.id)
+            this.lastPanes.push(this.app.workspace.activeLeaf.id);
         });
 
         this.addCommand({
