@@ -9,7 +9,6 @@ _In Combination with Mr. Jackphils Jump to Link plugin and Vim Keybindings, this
 - `Ctrl + Tab` to switch open Editor/Preview Tabs
 - `Ctrl + Shift + Tab` to switch open Editor/Preview Tabs in reverse order
 - Set hotkey in settings to focus on last active pane
-- **MacOS:** The Default Hotkeys do **not** work, you need to set your own in Settings > Hotkeys > Cycle through Panes
 
 ### Important
 
