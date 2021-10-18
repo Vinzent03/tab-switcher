@@ -24,7 +24,12 @@ export default class CycleThroughPanes extends Plugin {
 					return true;
 				}
 				return false;
-			}
+			}, hotkeys: [
+                {
+                    modifiers: ["Ctrl"],
+                    key: "Tab"
+                }
+			]
 		});
 
 		this.addCommand({
@@ -47,7 +52,12 @@ export default class CycleThroughPanes extends Plugin {
 					return true;
 				}
 				return false;
-			}
+			}, hotkeys: [
+                {
+                    modifiers: ["Ctrl", "Shift"],
+                    key: "Tab"
+                }
+            ]
 		});
 
 		//fires when a new file is opened or the focus switches to another pane
