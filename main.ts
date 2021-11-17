@@ -41,7 +41,7 @@ export default class CycleThroughPanes extends Plugin {
 					if (!checking) {
 						let leafs = this.app.workspace.getLeavesOfType("markdown");
 						let index = leafs.indexOf(active);
-						if (index) {
+						if (index !== undefined) {
 							if (index === 0) {
 								this.app.workspace.setActiveLeaf(leafs[leafs.length - 1], true, true);
 							} else {
