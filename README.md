@@ -6,8 +6,8 @@ _In Combination with Mr. Jackphils Jump to Link plugin and Vim Keybindings, this
 
 ## How to use
 
-- `Ctrl + Tab` to switch open Editor/Preview Tabs
-- `Ctrl + Shift + Tab` to switch open Editor/Preview Tabs in reverse order
+- <kbd>Ctrl</kbd> + <kbd>Tab</kbd> to switch open Editor/Preview Tabs
+- <kbd>Ctrl</kbd> + <kbd>Shift</kbd> + <kbd>Tab</kbd> to switch open Editor/Preview Tabs in reverse order
 - Set hotkey in settings to focus on last active pane
 
 ### Important
