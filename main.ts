@@ -10,11 +10,11 @@ export default class CycleThroughPanes extends Plugin {
 			id: 'cycle-through-panes',
 			name: 'Cycle through Panes',
 			checkCallback: (checking: boolean) => {
-				let active = this.app.workspace.activeLeaf;
+				const active = this.app.workspace.activeLeaf;
 				if (active) {
 					if (!checking) {
-						let leafs = this.app.workspace.getLeavesOfType("markdown");
-						let index = leafs.indexOf(active);
+						const leafs = this.app.workspace.getLeavesOfType("markdown").filter((e) => e.getRoot() == this.app.workspace.rootSplit);
+						const index = leafs.indexOf(active);
 						if (index === leafs.length - 1) {
 							this.app.workspace.setActiveLeaf(leafs[0], true, true);
 						} else {
@@ -25,10 +25,10 @@ export default class CycleThroughPanes extends Plugin {
 				}
 				return false;
 			}, hotkeys: [
-                {
-                    modifiers: ["Ctrl"],
-                    key: "Tab"
-                }
+				{
+					modifiers: ["Ctrl"],
+					key: "Tab"
+				}
 			]
 		});
 
@@ -39,8 +39,8 @@ export default class CycleThroughPanes extends Plugin {
 				let active = this.app.workspace.activeLeaf;
 				if (active) {
 					if (!checking) {
-						let leafs = this.app.workspace.getLeavesOfType("markdown");
-						let index = leafs.indexOf(active);
+						const leafs = this.app.workspace.getLeavesOfType("markdown").filter((e) => e.getRoot() == this.app.workspace.rootSplit);
+						const index = leafs.indexOf(active);
 						if (index !== undefined) {
 							if (index === 0) {
 								this.app.workspace.setActiveLeaf(leafs[leafs.length - 1], true, true);
@@ -53,11 +53,11 @@ export default class CycleThroughPanes extends Plugin {
 				}
 				return false;
 			}, hotkeys: [
-                {
-                    modifiers: ["Ctrl", "Shift"],
-                    key: "Tab"
-                }
-            ]
+				{
+					modifiers: ["Ctrl", "Shift"],
+					key: "Tab"
+				}
+			]
 		});
 
 		//fires when a new file is opened or the focus switches to another pane
