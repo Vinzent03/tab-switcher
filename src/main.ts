@@ -9,7 +9,11 @@ export default class CycleThroughPanes extends Plugin {
 	getLeavesOfTypes(types: string[]): WorkspaceLeaf[] {
 		const leaves: WorkspaceLeaf[] = [];
 		this.app.workspace.iterateAllLeaves((leaf) => {
-			if(types.contains(leaf.view.getViewType())) {
+			if (
+				types.contains(leaf.view.getViewType())
+				&& (!this.settings.onlyRootLeaves
+					|| leaf.getRoot() == this.app.workspace.rootSplit)
+			) {
 				leaves.push(leaf);
 			}
 		});
@@ -31,6 +35,7 @@ export default class CycleThroughPanes extends Plugin {
 				if (active) {
 					if (!checking) {
 						const leaves: WorkspaceLeaf[] = this.getLeavesOfTypes(this.settings.viewTypes);
+						console.log(leaves.map(leaf => leaf.view))
 						const index = leaves.indexOf(active);
 
 						if (index === leaves.length - 1) {
@@ -43,10 +48,10 @@ export default class CycleThroughPanes extends Plugin {
 				}
 				return false;
 			}, hotkeys: [
-                {
-                    modifiers: ["Ctrl"],
-                    key: "Tab"
-                }
+				{
+					modifiers: ["Ctrl"],
+					key: "Tab"
+				}
 			]
 		});
 
@@ -72,11 +77,11 @@ export default class CycleThroughPanes extends Plugin {
 				}
 				return false;
 			}, hotkeys: [
-                {
-                    modifiers: ["Ctrl", "Shift"],
-                    key: "Tab"
-                }
-            ]
+				{
+					modifiers: ["Ctrl", "Shift"],
+					key: "Tab"
+				}
+			]
 		});
 
 		this.addCommand({

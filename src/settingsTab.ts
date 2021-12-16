@@ -33,10 +33,22 @@ export default class CTPSettingTab extends PluginSettingTab {
             cb.setValue(value);
             cb.setPlaceholder('markdown');
             cb.onChange(async (newValue) => {
-                this.settings.viewTypes = newValue.split('\n');
+                //                                                    No empty lines
+                this.settings.viewTypes = newValue.split('\n').filter(pre => !!pre);
                 await this.plugin.saveSettings();
             })
         });
+
+        // new Setting(containerEl)
+        // .setName('Dont switch to Panes in Sidebar')
+        // .setDesc('If this is enabled, only Panes in your actual workspace are considered to switch to.')
+        // .addToggle((cb) => {
+        //     cb.setValue(this.settings.onlyRootLeaves);
+        //     cb.onChange(async value => {
+        //         this.settings.onlyRootLeaves = value;
+        //         await this.plugin.saveSettings();
+        //     })
+        // });
     }
 
 }
