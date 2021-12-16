@@ -35,7 +35,6 @@ export default class CycleThroughPanes extends Plugin {
 				if (active) {
 					if (!checking) {
 						const leaves: WorkspaceLeaf[] = this.getLeavesOfTypes(this.settings.viewTypes);
-						console.log(leaves.map(leaf => leaf.view))
 						const index = leaves.indexOf(active);
 
 						if (index === leaves.length - 1) {
