@@ -8,15 +8,23 @@ export default class CycleThroughPanes extends Plugin {
 
 	getLeavesOfTypes(types: string[]): WorkspaceLeaf[] {
 		const leaves: WorkspaceLeaf[] = [];
+
 		this.app.workspace.iterateAllLeaves((leaf) => {
+			const isMainWindow = leaf.view.containerEl.win == window;
+
+			const correctViewType = types.contains(leaf.view.getViewType());
+			const sameWindow = leaf.view.containerEl.win == activeWindow;
+
+			//Ignore sidebar panes in the main window, because non-main window don't have a sidebar
+			const correctPane = isMainWindow ? (sameWindow && leaf.getRoot() == this.app.workspace.rootSplit) : sameWindow;
 			if (
-				types.contains(leaf.view.getViewType())
-				&& (!this.settings.onlyRootLeaves
-					|| leaf.getRoot() == this.app.workspace.rootSplit)
+				correctViewType
+				&& correctPane
 			) {
 				leaves.push(leaf);
 			}
 		});
+
 		return leaves;
 	}
 
@@ -32,6 +40,7 @@ export default class CycleThroughPanes extends Plugin {
 			name: 'Cycle through Panes',
 			checkCallback: (checking: boolean) => {
 				const active = this.app.workspace.activeLeaf;
+
 				if (active) {
 					if (!checking) {
 						const leaves: WorkspaceLeaf[] = this.getLeavesOfTypes(this.settings.viewTypes);
@@ -141,10 +150,15 @@ export default class CycleThroughPanes extends Plugin {
 				let leaf;
 				//Cycle thorough the history until a pane is still there and not the current pane
 				for (var i = 2; i <= this.lastPanes.length; i++) {
-					if (this.lastPanes[this.lastPanes.length - i] == this.lastPanes.last())
+					const pane = this.lastPanes[this.lastPanes.length - i];
+					if (pane == this.lastPanes.last())
 						continue;
-					leaf = this.app.workspace.getLeafById(this.lastPanes[this.lastPanes.length - i]);
-					if (leaf) break;
+					const maybeLeaf = this.app.workspace.getLeafById(pane);
+
+					if (maybeLeaf.view.containerEl.win == activeWindow) {
+						leaf = maybeLeaf;
+						break;
+					}
 				}
 				if (leaf) {
 					this.app.workspace.setActiveLeaf(leaf, true, true);
