@@ -1,7 +1,7 @@
 {
   "id": "cycle-through-panes",
   "name": "Cycle through Panes",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "minAppVersion": "0.15.0",
   "description": "Cycle through your open Panes with `ctrl + Tab`, just like with Tabs in your Browser!, ctrl+shift+Tab for Reverse",
   "author": "Vinzent03 & phibr0",
