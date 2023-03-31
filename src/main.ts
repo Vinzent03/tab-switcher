@@ -1,182 +1,228 @@
-import { Plugin, WorkspaceLeaf } from 'obsidian';
-import CTPSettingTab from './settingsTab';
-import { DEFAULT_SETTINGS, Settings } from './types';
+import { Plugin, WorkspaceLeaf } from "obsidian";
+import CTPSettingTab from "./settingsTab";
+import { DEFAULT_SETTINGS, Settings } from "./types";
 
 export default class CycleThroughPanes extends Plugin {
-	lastPanes: string[] = [];
-	settings: Settings;
+    settings: Settings;
+    ctrlPressedTimestamp = 0;
+    ctrlKeyCode: string | undefined;
+    leafIndex: number | null = null;
 
-	getLeavesOfTypes(types: string[]): WorkspaceLeaf[] {
-		const leaves: WorkspaceLeaf[] = [];
+    keyDownFunc = this.onKeyDown.bind(this);
+    keyUpFunc = this.onKeyUp.bind(this);
 
-		this.app.workspace.iterateAllLeaves((leaf) => {
-			const isMainWindow = leaf.view.containerEl.win == window;
+    leaves: WorkspaceLeaf[];
 
-			const correctViewType = types.contains(leaf.view.getViewType());
-			const sameWindow = leaf.view.containerEl.win == activeWindow;
+    getLeavesOfTypes(types: string[]): WorkspaceLeaf[] {
+        const leaves: WorkspaceLeaf[] = [];
 
-			//Ignore sidebar panes in the main window, because non-main window don't have a sidebar
-			const correctPane = isMainWindow ? (sameWindow && leaf.getRoot() == this.app.workspace.rootSplit) : sameWindow;
-			if (
-				correctViewType
-				&& correctPane
-			) {
-				leaves.push(leaf);
-			}
-		});
+        this.app.workspace.iterateAllLeaves((leaf) => {
+            const isMainWindow = leaf.view.containerEl.win == window;
 
-		return leaves;
-	}
+            const correctViewType = types.contains(leaf.view.getViewType());
+            const sameWindow = leaf.view.containerEl.win == activeWindow;
 
-	async onload() {
-		console.log('loading plugin: Cycle through panes');
+            //Ignore sidebar panes in the main window, because non-main window don't have a sidebar
+            const correctPane = isMainWindow
+                ? sameWindow && leaf.getRoot() == this.app.workspace.rootSplit
+                : sameWindow;
+            if (correctViewType && correctPane) {
+                leaves.push(leaf);
+            }
+        });
 
-		await this.loadSettings();
+        return leaves;
+    }
 
-		this.addSettingTab(new CTPSettingTab(this, this.settings));
+    async onload() {
+        console.log("loading plugin: Cycle through panes");
 
-		this.addCommand({
-			id: 'cycle-through-panes',
-			name: 'Cycle through Panes',
-			checkCallback: (checking: boolean) => {
-				const active = this.app.workspace.activeLeaf;
+        await this.loadSettings();
 
-				if (active) {
-					if (!checking) {
-						const leaves: WorkspaceLeaf[] = this.getLeavesOfTypes(this.settings.viewTypes);
-						const index = leaves.indexOf(active);
+        this.addSettingTab(new CTPSettingTab(this, this.settings));
 
-						if (index === leaves.length - 1) {
-							this.app.workspace.setActiveLeaf(leaves[0], true, true);
-						} else {
-							this.app.workspace.setActiveLeaf(leaves[index + 1], true, true);
-						}
-					}
-					return true;
-				}
-				return false;
-			}, hotkeys: [
-				{
-					modifiers: ["Ctrl"],
-					key: "Tab"
-				}
-			]
-		});
+        this.addCommand({
+            id: "cycle-through-panes",
+            name: "Go to right tab",
+            checkCallback: (checking: boolean) => {
+                const active = this.app.workspace.activeLeaf;
 
-		this.addCommand({
-			id: 'cycle-through-panes-reverse',
-			name: 'Cycle through panes (Reverse)',
-			checkCallback: (checking: boolean) => {
-				const active = this.app.workspace.activeLeaf;
-				if (active) {
-					if (!checking) {
-						const leaves: WorkspaceLeaf[] = this.getLeavesOfTypes(this.settings.viewTypes);
-						const index = leaves.indexOf(active);
+                if (active) {
+                    if (!checking) {
+                        const leaves: WorkspaceLeaf[] = this.getLeavesOfTypes(
+                            this.settings.viewTypes
+                        );
+                        const index = leaves.indexOf(active);
 
-						if (index !== undefined) {
-							if (index === 0) {
-								this.app.workspace.setActiveLeaf(leaves[leaves.length - 1], true, true);
-							} else {
-								this.app.workspace.setActiveLeaf(leaves[index - 1], true, true);
-							}
-						}
-					}
-					return true;
-				}
-				return false;
-			}, hotkeys: [
-				{
-					modifiers: ["Ctrl", "Shift"],
-					key: "Tab"
-				}
-			]
-		});
+                        if (index === leaves.length - 1) {
+                            this.app.workspace.setActiveLeaf(
+                                leaves[0],
+                                true,
+                                true
+                            );
+                        } else {
+                            this.app.workspace.setActiveLeaf(
+                                leaves[index + 1],
+                                true,
+                                true
+                            );
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            },
+        });
 
-		this.addCommand({
-			id: 'cycle-through-panes-add-view',
-			name: 'Enable this View Type',
-			checkCallback: (checking: boolean) => {
-				const active = this.app.workspace.activeLeaf;
-				if (active && !this.settings.viewTypes.contains(active.view.getViewType())) {
-					if (!checking) {
-						this.settings.viewTypes.push(active.view.getViewType());
-						this.saveSettings();
-					}
-					return true;
-				}
-				return false;
-			}
-		});
+        this.addCommand({
+            id: "cycle-through-panes-reverse",
+            name: "Go to left tab",
+            checkCallback: (checking: boolean) => {
+                const active = this.app.workspace.activeLeaf;
+                if (active) {
+                    if (!checking) {
+                        const leaves: WorkspaceLeaf[] = this.getLeavesOfTypes(
+                            this.settings.viewTypes
+                        );
+                        const index = leaves.indexOf(active);
 
-		this.addCommand({
-			id: 'cycle-through-panes-remove-view',
-			name: 'Disable this View Type',
-			checkCallback: (checking: boolean) => {
-				const active = this.app.workspace.activeLeaf;
-				if (active && this.settings.viewTypes.contains(active.view.getViewType())) {
-					if (!checking) {
-						this.settings.viewTypes.remove(active.view.getViewType());
-						this.saveSettings();
-					}
-					return true;
-				}
-				return false;
-			}
-		});
+                        if (index !== undefined) {
+                            if (index === 0) {
+                                this.app.workspace.setActiveLeaf(
+                                    leaves[leaves.length - 1],
+                                    true,
+                                    true
+                                );
+                            } else {
+                                this.app.workspace.setActiveLeaf(
+                                    leaves[index - 1],
+                                    true,
+                                    true
+                                );
+                            }
+                        }
+                    }
+                    return true;
+                }
+                return false;
+            },
+        });
 
-		//fires when a new file is opened or the focus switches to another pane
-		this.app.workspace.on("file-open", () => {
-			const active = this.app.workspace.activeLeaf;
-			//use just markdown panes
-			if (!active || !this.settings.viewTypes.contains(active.view.getViewType())) {
-				return;
-			}
-			//if a file gets opened in current pane
-			if (this.lastPanes?.last() == (active as any).id) {
-				return;
-			}
-			//keep a history of 10 panes
-			if (this.lastPanes.length > 10) {
-				this.lastPanes.splice(0, 1);
-			}
-			//add current pane to history
-			this.lastPanes.push((active as any).id);
-		});
+        this.addCommand({
+            id: "cycle-through-panes-add-view",
+            name: "Enable this View Type",
+            checkCallback: (checking: boolean) => {
+                const active = this.app.workspace.activeLeaf;
+                if (
+                    active &&
+                    !this.settings.viewTypes.contains(active.view.getViewType())
+                ) {
+                    if (!checking) {
+                        this.settings.viewTypes.push(active.view.getViewType());
+                        this.saveSettings();
+                    }
+                    return true;
+                }
+                return false;
+            },
+        });
 
-		this.addCommand({
-			id: 'focus-on-last-active-pane',
-			name: 'Focus on last active pane',
-			callback: () => {
-				let leaf;
-				//Cycle thorough the history until a pane is still there and not the current pane
-				for (var i = 2; i <= this.lastPanes.length; i++) {
-					const pane = this.lastPanes[this.lastPanes.length - i];
-					if (pane == this.lastPanes.last())
-						continue;
-					const maybeLeaf = this.app.workspace.getLeafById(pane);
+        this.addCommand({
+            id: "cycle-through-panes-remove-view",
+            name: "Disable this View Type",
+            checkCallback: (checking: boolean) => {
+                const active = this.app.workspace.activeLeaf;
+                if (
+                    active &&
+                    this.settings.viewTypes.contains(active.view.getViewType())
+                ) {
+                    if (!checking) {
+                        this.settings.viewTypes.remove(
+                            active.view.getViewType()
+                        );
+                        this.saveSettings();
+                    }
+                    return true;
+                }
+                return false;
+            },
+        });
 
-					if (maybeLeaf.view.containerEl.win == activeWindow) {
-						leaf = maybeLeaf;
-						break;
-					}
-				}
-				if (leaf) {
-					this.app.workspace.setActiveLeaf(leaf, true, true);
-				}
-			}
-		});
+        this.addCommand({
+            id: "focus-on-last-active-pane",
+            name: "Focus on previous tab",
+            callback: () => {
+                this.setLeaves();
+                this.leafIndex = this.leafIndex - 1;
+                if (this.leafIndex < 0) this.leafIndex = this.leaves.length - 1;
 
-	}
+                const leaf = this.leaves[this.leafIndex];
 
-	onunload() {
-		console.log('unloading plugin: Cycle through panes');
-	}
+                if (leaf) {
+                    this.app.workspace.setActiveLeaf(leaf, { focus: true });
+                }
+            },
+        });
+        this.addCommand({
+            id: "focus-on-last-active-pane-reverse",
+            name: "Go to next tab",
+            callback: () => {
+                this.setLeaves();
+                this.leafIndex = this.leafIndex + 1;
+                if (this.leafIndex >= this.leaves.length) this.leafIndex = 0;
 
-	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
-	}
+                const leaf = this.leaves[this.leafIndex];
 
-	async saveSettings() {
-		await this.saveData(this.settings);
-	}
+                if (leaf) {
+                    this.app.workspace.setActiveLeaf(leaf, { focus: true });
+                }
+            },
+        });
+
+        window.addEventListener("keydown", this.keyDownFunc);
+        window.addEventListener("keyup", this.keyUpFunc);
+    }
+
+    setLeaves() {
+        if (!this.leaves) {
+            const leaves = this.getLeavesOfTypes(this.settings.viewTypes);
+            leaves.sort((a, b) => {
+                return a.activeTime - b.activeTime;
+            });
+            this.leaves = leaves;
+            this.leafIndex = leaves.indexOf(this.app.workspace.activeLeaf);
+        }
+    }
+
+    onKeyDown(e: KeyboardEvent) {
+        if (e.getModifierState("Control")) {
+            this.ctrlPressedTimestamp = e.timeStamp;
+            this.ctrlKeyCode = e.code;
+        }
+    }
+
+    onKeyUp(e: KeyboardEvent) {
+        if (e.code == this.ctrlKeyCode && this.ctrlPressedTimestamp) {
+            this.ctrlPressedTimestamp = 0;
+            this.leaves = null;
+        }
+    }
+
+    onunload() {
+        console.log("unloading plugin: Cycle through panes");
+        window.removeEventListener("keydown", this.keyDownFunc);
+        window.removeEventListener("keyup", this.keyUpFunc);
+    }
+
+    async loadSettings() {
+        this.settings = Object.assign(
+            {},
+            DEFAULT_SETTINGS,
+            await this.loadData()
+        );
+    }
+
+    async saveSettings() {
+        await this.saveData(this.settings);
+    }
 }
