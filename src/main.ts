@@ -6,7 +6,7 @@ export default class CycleThroughPanes extends Plugin {
     settings: Settings;
     ctrlPressedTimestamp = 0;
     ctrlKeyCode: string | undefined;
-    leafIndex: number | null = null;
+    leafIndex = 0;
 
     keyDownFunc = this.onKeyDown.bind(this);
     keyUpFunc = this.onKeyUp.bind(this);
@@ -150,7 +150,7 @@ export default class CycleThroughPanes extends Plugin {
 
         this.addCommand({
             id: "focus-on-last-active-pane",
-            name: "Focus on previous tab",
+            name: "Go to previous tab",
             callback: () => {
                 this.setLeaves();
                 this.leafIndex = this.leafIndex - 1;
