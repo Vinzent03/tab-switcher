@@ -1,4 +1,5 @@
 import { Plugin, WorkspaceLeaf } from "obsidian";
+import { GeneralModal } from "./modal";
 import CTPSettingTab from "./settingsTab";
 import { DEFAULT_SETTINGS, Settings } from "./types";
 
@@ -7,11 +8,11 @@ export default class CycleThroughPanes extends Plugin {
     ctrlPressedTimestamp = 0;
     ctrlKeyCode: string | undefined;
     leafIndex = 0;
+    modal: GeneralModal | undefined;
+    leaves: WorkspaceLeaf[];
 
     keyDownFunc = this.onKeyDown.bind(this);
     keyUpFunc = this.onKeyUp.bind(this);
-
-    leaves: WorkspaceLeaf[];
 
     getLeavesOfTypes(types: string[]): WorkspaceLeaf[] {
         const leaves: WorkspaceLeaf[] = [];
@@ -151,12 +152,18 @@ export default class CycleThroughPanes extends Plugin {
         this.addCommand({
             id: "focus-on-last-active-pane",
             name: "Go to previous tab",
-            callback: () => {
+            callback: async () => {
                 this.setLeaves();
-                this.leafIndex = this.leafIndex - 1;
-                if (this.leafIndex < 0) this.leafIndex = this.leaves.length - 1;
-
-                const leaf = this.leaves[this.leafIndex];
+                const leaves = this.leaves;
+                if (this.settings.showModal) {
+                    this.modal = new GeneralModal(leaves);
+                    this.leafIndex = await this.modal.open();
+                } else {
+                    this.leafIndex = this.leafIndex + 1;
+                    if (this.leafIndex >= this.leaves.length)
+                        this.leafIndex = 0;
+                }
+                const leaf = leaves[this.leafIndex];
 
                 if (leaf) {
                     this.app.workspace.setActiveLeaf(leaf, { focus: true });
@@ -166,12 +173,17 @@ export default class CycleThroughPanes extends Plugin {
         this.addCommand({
             id: "focus-on-last-active-pane-reverse",
             name: "Go to next tab",
-            callback: () => {
+            callback: async () => {
                 this.setLeaves();
-                this.leafIndex = this.leafIndex + 1;
-                if (this.leafIndex >= this.leaves.length) this.leafIndex = 0;
-
-                const leaf = this.leaves[this.leafIndex];
+                const leaves = this.leaves;
+                if (this.settings.showModal) {
+                    this.modal = new GeneralModal(leaves);
+                    this.leafIndex = await this.modal.open();
+                } else {
+                    this.leafIndex = this.leafIndex - 1;
+                    if (this.leafIndex < 0) this.leafIndex = leaves.length - 1;
+                }
+                const leaf = leaves[this.leafIndex];
 
                 if (leaf) {
                     this.app.workspace.setActiveLeaf(leaf, { focus: true });
@@ -187,7 +199,7 @@ export default class CycleThroughPanes extends Plugin {
         if (!this.leaves) {
             const leaves = this.getLeavesOfTypes(this.settings.viewTypes);
             leaves.sort((a, b) => {
-                return a.activeTime - b.activeTime;
+                return b.activeTime - a.activeTime;
             });
             this.leaves = leaves;
             this.leafIndex = leaves.indexOf(this.app.workspace.activeLeaf);
@@ -195,7 +207,7 @@ export default class CycleThroughPanes extends Plugin {
     }
 
     onKeyDown(e: KeyboardEvent) {
-        if (e.getModifierState("Control")) {
+        if (e.key == "Control") {
             this.ctrlPressedTimestamp = e.timeStamp;
             this.ctrlKeyCode = e.code;
         }
@@ -205,6 +217,10 @@ export default class CycleThroughPanes extends Plugin {
         if (e.code == this.ctrlKeyCode && this.ctrlPressedTimestamp) {
             this.ctrlPressedTimestamp = 0;
             this.leaves = null;
+
+            this.modal?.close();
+
+            this.modal = undefined;
         }
     }
 
