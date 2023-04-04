@@ -12,12 +12,23 @@ export class GeneralModal extends SuggestModal<string> {
         super.open();
 
         this.chooser.setSelectedItem(1);
+        this.focusTab();
+
         this.containerEl
             .getElementsByClassName("prompt-input-container")
             .item(0)
             .detach();
-        this.scope.register(["Ctrl"], "Tab", this.chooser.moveDown);
-        this.scope.register(["Ctrl", "Shift"], "Tab", this.chooser.moveUp);
+
+        // hotkey = this.app.hotkeyManager.bakedIds.find((e)=>e == "")
+
+        this.scope.register(["Ctrl"], "Tab", (e) => {
+            this.chooser.moveDown(e);
+            this.focusTab();
+        });
+        this.scope.register(["Ctrl", "Shift"], "Tab", (e) => {
+            this.chooser.moveUp(e);
+            this.focusTab();
+        });
 
         return new Promise((resolve) => {
             this.resolve = resolve;
@@ -37,4 +48,11 @@ export class GeneralModal extends SuggestModal<string> {
     }
 
     onChooseSuggestion(item: string, evt: MouseEvent | KeyboardEvent) {}
+
+    focusTab(): void {
+        this.app.workspace.setActiveLeaf(
+            this.leaves[this.chooser.selectedItem],
+            { focus: true }
+        );
+    }
 }
