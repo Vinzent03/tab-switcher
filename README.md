@@ -16,6 +16,11 @@ There are two different groups of commands:
 
 
 Note that this plugin does not set any default hotkeys, so that you can choose the behavior you prefer.
+
+## Showcase of the second mode
+
+![Showcase](https://raw.githubusercontent.com/phibr0/cycle-through-panes/master/showcase.gif)
+
 ### Important
 
 To prevent navigating to unwanted view types, there is a list in the settings, where you can specify which view types should be cycled through. There are additional commands to automatically add the current view type to the list or to remove it from the list.
