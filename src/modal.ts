@@ -22,11 +22,12 @@ export class GeneralModal extends SuggestModal<string> {
         // hotkey = this.app.hotkeyManager.bakedIds.find((e)=>e == "")
 
         this.scope.register(["Ctrl"], "Tab", (e) => {
-            this.chooser.moveDown(e);
+            this.chooser.setSelectedItem(this.chooser.selectedItem + 1);
             this.focusTab();
         });
+
         this.scope.register(["Ctrl", "Shift"], "Tab", (e) => {
-            this.chooser.moveUp(e);
+            this.chooser.setSelectedItem(this.chooser.selectedItem - 1);
             this.focusTab();
         });
 
