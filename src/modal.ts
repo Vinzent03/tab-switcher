@@ -52,8 +52,7 @@ export class GeneralModal extends SuggestModal<string> {
 
     focusTab(): void {
         this.app.workspace.setActiveLeaf(
-            this.leaves[this.chooser.selectedItem],
-            { focus: true }
+            this.leaves[this.chooser.selectedItem]
         );
     }
 }

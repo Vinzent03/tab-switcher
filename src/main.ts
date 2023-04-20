@@ -58,16 +58,13 @@ export default class CycleThroughPanes extends Plugin {
                         const index = leaves.indexOf(active);
 
                         if (index === leaves.length - 1) {
-                            this.app.workspace.setActiveLeaf(
-                                leaves[0],
-                                true,
-                                true
-                            );
+                            this.app.workspace.setActiveLeaf(leaves[0], {
+                                focus: true,
+                            });
                         } else {
                             this.app.workspace.setActiveLeaf(
                                 leaves[index + 1],
-                                true,
-                                true
+                                { focus: true }
                             );
                         }
                     }
@@ -93,14 +90,12 @@ export default class CycleThroughPanes extends Plugin {
                             if (index === 0) {
                                 this.app.workspace.setActiveLeaf(
                                     leaves[leaves.length - 1],
-                                    true,
-                                    true
+                                    { focus: true }
                                 );
                             } else {
                                 this.app.workspace.setActiveLeaf(
                                     leaves[index - 1],
-                                    true,
-                                    true
+                                    { focus: true }
                                 );
                             }
                         }
@@ -198,11 +193,11 @@ export default class CycleThroughPanes extends Plugin {
                     this.leafIndex = this.leafIndex + 1;
                     if (this.leafIndex >= this.leaves.length)
                         this.leafIndex = 0;
-                    const leaf = leaves[this.leafIndex];
+                }
+                const leaf = leaves[this.leafIndex];
 
-                    if (leaf) {
-                        this.app.workspace.setActiveLeaf(leaf, { focus: true });
-                    }
+                if (leaf) {
+                    this.app.workspace.setActiveLeaf(leaf, { focus: true });
                 }
             },
         });
@@ -218,11 +213,11 @@ export default class CycleThroughPanes extends Plugin {
                 } else {
                     this.leafIndex = this.leafIndex - 1;
                     if (this.leafIndex < 0) this.leafIndex = leaves.length - 1;
-                    const leaf = leaves[this.leafIndex];
+                }
+                const leaf = leaves[this.leafIndex];
 
-                    if (leaf) {
-                        this.app.workspace.setActiveLeaf(leaf, { focus: true });
-                    }
+                if (leaf) {
+                    this.app.workspace.setActiveLeaf(leaf, { focus: true });
                 }
             },
         });
