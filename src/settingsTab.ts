@@ -66,5 +66,18 @@ export default class CTPSettingTab extends PluginSettingTab {
                 await this.plugin.saveSettings();
             });
         });
+
+        new Setting(containerEl)
+            .setName("Stay in current split")
+            .setDesc(
+                "If enabled and the currently active file is in the sidebar, you cycle within that sidebar and can't switch to the main tabs. Use the "
+            )
+            .addToggle((cb) => {
+                cb.setValue(this.settings.stayInSplit);
+                cb.onChange(async (value) => {
+                    this.settings.stayInSplit = value;
+                    await this.plugin.saveSettings();
+                });
+            });
     }
 }

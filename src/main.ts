@@ -16,20 +16,31 @@ export default class CycleThroughPanes extends Plugin {
 
     getLeavesOfTypes(types: string[]): WorkspaceLeaf[] {
         const leaves: WorkspaceLeaf[] = [];
-
+        const activeLeaf = this.app.workspace.activeLeaf;
         this.app.workspace.iterateAllLeaves((leaf) => {
             if (this.settings.skipPinned && leaf.getViewState().pinned) return;
 
-            const isMainWindow = leaf.view.containerEl.win == window;
-
             const correctViewType = types.contains(leaf.view.getViewType());
+
+            if (!correctViewType) return;
+
+            const isMainWindow = leaf.view.containerEl.win == window;
             const sameWindow = leaf.view.containerEl.win == activeWindow;
 
-            //Ignore sidebar panes in the main window, because non-main window don't have a sidebar
-            const correctPane = isMainWindow
-                ? sameWindow && leaf.getRoot() == this.app.workspace.rootSplit
-                : sameWindow;
-            if (correctViewType && correctPane) {
+            let correctPane = false;
+            if (isMainWindow) {
+                if (this.settings.stayInSplit) {
+                    correctPane =
+                        sameWindow && leaf.getRoot() == activeLeaf.getRoot();
+                } else {
+                    correctPane =
+                        sameWindow &&
+                        leaf.getRoot() == this.app.workspace.rootSplit;
+                }
+            } else {
+                correctPane = sameWindow;
+            }
+            if (correctPane) {
                 leaves.push(leaf);
             }
         });
