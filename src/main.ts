@@ -150,6 +150,40 @@ export default class CycleThroughPanes extends Plugin {
         });
 
         this.addCommand({
+            id: "focus-left-sidebar",
+            name: "Focus on left sidebar",
+            callback: () => {
+                app.workspace.leftSplit.expand();
+                let leaf: WorkspaceLeaf;
+                app.workspace.iterateAllLeaves((e) => {
+                    if (e.getRoot() == app.workspace.leftSplit) {
+                        if (e.activeTime > (leaf?.activeTime || 0)) {
+                            leaf = e;
+                        }
+                    }
+                });
+                app.workspace.setActiveLeaf(leaf, { focus: true });
+            },
+        });
+
+        this.addCommand({
+            id: "focus-right-sidebar",
+            name: "Focus on right sidebar",
+            callback: () => {
+                app.workspace.rightSplit.expand();
+                let leaf: WorkspaceLeaf;
+                app.workspace.iterateAllLeaves((e) => {
+                    if (e.getRoot() == app.workspace.rightSplit) {
+                        if (e.activeTime > (leaf?.activeTime || 0)) {
+                            leaf = e;
+                        }
+                    }
+                });
+                app.workspace.setActiveLeaf(leaf, { focus: true });
+            },
+        });
+
+        this.addCommand({
             id: "focus-on-last-active-pane",
             name: "Go to previous tab",
             callback: async () => {
