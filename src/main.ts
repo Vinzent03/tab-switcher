@@ -18,6 +18,8 @@ export default class CycleThroughPanes extends Plugin {
         const leaves: WorkspaceLeaf[] = [];
 
         this.app.workspace.iterateAllLeaves((leaf) => {
+            if (this.settings.skipPinned && leaf.getViewState().pinned) return;
+
             const isMainWindow = leaf.view.containerEl.win == window;
 
             const correctViewType = types.contains(leaf.view.getViewType());

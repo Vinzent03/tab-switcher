@@ -58,5 +58,13 @@ export default class CTPSettingTab extends PluginSettingTab {
                     await this.plugin.saveSettings();
                 });
             });
+
+        new Setting(containerEl).setName("Skip pinned tabs").addToggle((cb) => {
+            cb.setValue(this.settings.skipPinned);
+            cb.onChange(async (value) => {
+                this.settings.skipPinned = value;
+                await this.plugin.saveSettings();
+            });
+        });
     }
 }

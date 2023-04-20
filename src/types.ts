@@ -1,11 +1,13 @@
 export interface Settings {
     viewTypes: string[];
     showModal: boolean;
+    skipPinned: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
     viewTypes: ["markdown", "canvas"],
     showModal: true,
+    skipPinned: false,
 };
 
 declare module "obsidian" {
