@@ -1,9 +1,13 @@
 import { SuggestModal, WorkspaceLeaf } from "obsidian";
+import CycleThroughPanes from "./main";
 
 export class GeneralModal extends SuggestModal<string> {
     resolve: (value: number) => void;
 
-    constructor(private leaves: WorkspaceLeaf[]) {
+    constructor(
+        private leaves: WorkspaceLeaf[],
+        private readonly plugin: CycleThroughPanes
+    ) {
         super(app);
     }
 
@@ -51,8 +55,6 @@ export class GeneralModal extends SuggestModal<string> {
     onChooseSuggestion(item: string, evt: MouseEvent | KeyboardEvent) {}
 
     focusTab(): void {
-        this.app.workspace.setActiveLeaf(
-            this.leaves[this.chooser.selectedItem]
-        );
+        this.plugin.focusLeaf(this.leaves[this.chooser.selectedItem]);
     }
 }

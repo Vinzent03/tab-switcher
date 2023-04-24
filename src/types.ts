@@ -24,6 +24,10 @@ declare module "obsidian" {
         activeTime: number;
     }
 
+    interface WorkspaceItem {
+        openLeaf(leaf: WorkspaceLeaf): void;
+    }
+
     interface Modal {
         chooser: {
             moveDown: any;

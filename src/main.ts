@@ -1,4 +1,4 @@
-import { Plugin, WorkspaceLeaf } from "obsidian";
+import { Platform, Plugin, WorkspaceLeaf } from "obsidian";
 import { GeneralModal } from "./modal";
 import CTPSettingTab from "./settingsTab";
 import { DEFAULT_SETTINGS, Settings } from "./types";
@@ -69,14 +69,9 @@ export default class CycleThroughPanes extends Plugin {
                         const index = leaves.indexOf(active);
 
                         if (index === leaves.length - 1) {
-                            this.app.workspace.setActiveLeaf(leaves[0], {
-                                focus: true,
-                            });
+                            this.focusLeaf(leaves[0]);
                         } else {
-                            this.app.workspace.setActiveLeaf(
-                                leaves[index + 1],
-                                { focus: true }
-                            );
+                            this.focusLeaf(leaves[index + 1]);
                         }
                     }
                     return true;
@@ -99,15 +94,9 @@ export default class CycleThroughPanes extends Plugin {
 
                         if (index !== undefined) {
                             if (index === 0) {
-                                this.app.workspace.setActiveLeaf(
-                                    leaves[leaves.length - 1],
-                                    { focus: true }
-                                );
+                                this.focusLeaf(leaves[leaves.length - 1]);
                             } else {
-                                this.app.workspace.setActiveLeaf(
-                                    leaves[index - 1],
-                                    { focus: true }
-                                );
+                                this.focusLeaf(leaves[index - 1]);
                             }
                         }
                     }
@@ -170,7 +159,7 @@ export default class CycleThroughPanes extends Plugin {
                         }
                     }
                 });
-                app.workspace.setActiveLeaf(leaf, { focus: true });
+                this.focusLeaf(leaf);
             },
         });
 
@@ -187,7 +176,7 @@ export default class CycleThroughPanes extends Plugin {
                         }
                     }
                 });
-                app.workspace.setActiveLeaf(leaf, { focus: true });
+                this.focusLeaf(leaf);
             },
         });
 
@@ -198,7 +187,7 @@ export default class CycleThroughPanes extends Plugin {
                 this.setLeaves();
                 const leaves = this.leaves;
                 if (this.settings.showModal) {
-                    this.modal = new GeneralModal(leaves);
+                    this.modal = new GeneralModal(leaves, this);
                     this.leafIndex = await this.modal.open();
                 } else {
                     this.leafIndex = this.leafIndex + 1;
@@ -208,7 +197,7 @@ export default class CycleThroughPanes extends Plugin {
                 const leaf = leaves[this.leafIndex];
 
                 if (leaf) {
-                    this.app.workspace.setActiveLeaf(leaf, { focus: true });
+                    this.focusLeaf(leaf);
                 }
             },
         });
@@ -219,7 +208,7 @@ export default class CycleThroughPanes extends Plugin {
                 this.setLeaves();
                 const leaves = this.leaves;
                 if (this.settings.showModal) {
-                    this.modal = new GeneralModal(leaves);
+                    this.modal = new GeneralModal(leaves, this);
                     this.leafIndex = await this.modal.open();
                 } else {
                     this.leafIndex = this.leafIndex - 1;
@@ -228,13 +217,32 @@ export default class CycleThroughPanes extends Plugin {
                 const leaf = leaves[this.leafIndex];
 
                 if (leaf) {
-                    this.app.workspace.setActiveLeaf(leaf, { focus: true });
+                    this.focusLeaf(leaf);
                 }
             },
         });
 
         window.addEventListener("keydown", this.keyDownFunc);
         window.addEventListener("keyup", this.keyUpFunc);
+    }
+
+    focusLeaf(leaf: WorkspaceLeaf) {
+        if (leaf) {
+            const root = leaf.getRoot();
+            if (root != this.app.workspace.rootSplit && Platform.isMobile) {
+                root.openLeaf(leaf);
+                leaf.activeTime = Date.now();
+            } else {
+                this.app.workspace.setActiveLeaf(leaf, { focus: true });
+            }
+            if (leaf.getViewState().type == "search") {
+                const search = leaf.view.containerEl.find(
+                    ".search-input-container input"
+                );
+
+                search.focus();
+            }
+        }
     }
 
     setLeaves() {
