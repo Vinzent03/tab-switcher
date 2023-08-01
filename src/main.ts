@@ -7,6 +7,9 @@ export default class CycleThroughPanes extends Plugin {
     settings: Settings;
     ctrlPressedTimestamp = 0;
     ctrlKeyCode: string | undefined;
+    // TODO move to settings
+    focusLeafOnKeyUp = true // set to false to restore original behavior
+    queuedFocusLeaf: WorkspaceLeaf
     leafIndex = 0;
     modal: GeneralModal | undefined;
     leaves: WorkspaceLeaf[];
@@ -69,9 +72,9 @@ export default class CycleThroughPanes extends Plugin {
                         const index = leaves.indexOf(active);
 
                         if (index === leaves.length - 1) {
-                            this.focusLeaf(leaves[0]);
+                            this.queueFocusLeaf(leaves[0]);
                         } else {
-                            this.focusLeaf(leaves[index + 1]);
+                            this.queueFocusLeaf(leaves[index + 1]);
                         }
                     }
                     return true;
@@ -94,9 +97,9 @@ export default class CycleThroughPanes extends Plugin {
 
                         if (index !== undefined) {
                             if (index === 0) {
-                                this.focusLeaf(leaves[leaves.length - 1]);
+                                this.queueFocusLeaf(leaves[leaves.length - 1]);
                             } else {
-                                this.focusLeaf(leaves[index - 1]);
+                                this.queueFocusLeaf(leaves[index - 1]);
                             }
                         }
                     }
@@ -159,7 +162,7 @@ export default class CycleThroughPanes extends Plugin {
                         }
                     }
                 });
-                this.focusLeaf(leaf);
+                this.queueFocusLeaf(leaf);
             },
         });
 
@@ -176,7 +179,7 @@ export default class CycleThroughPanes extends Plugin {
                         }
                     }
                 });
-                this.focusLeaf(leaf);
+                this.queueFocusLeaf(leaf);
             },
         });
 
@@ -197,7 +200,7 @@ export default class CycleThroughPanes extends Plugin {
                 const leaf = leaves[this.leafIndex];
 
                 if (leaf) {
-                    this.focusLeaf(leaf);
+                    this.queueFocusLeaf(leaf);
                 }
             },
         });
@@ -217,13 +220,21 @@ export default class CycleThroughPanes extends Plugin {
                 const leaf = leaves[this.leafIndex];
 
                 if (leaf) {
-                    this.focusLeaf(leaf);
+                    this.queueFocusLeaf(leaf);
                 }
             },
         });
 
         window.addEventListener("keydown", this.keyDownFunc);
         window.addEventListener("keyup", this.keyUpFunc);
+    }
+
+    queueFocusLeaf(leaf: WorkspaceLeaf) {
+        if (this.focusLeafOnKeyUp) {
+            this.queuedFocusLeaf = leaf
+        } else {
+            this.focusLeaf(leaf)
+        }
     }
 
     focusLeaf(leaf: WorkspaceLeaf) {
@@ -269,6 +280,10 @@ export default class CycleThroughPanes extends Plugin {
             this.leaves = null;
 
             this.modal?.close();
+
+            if (this.queueFocusLeaf) {
+                this.focusLeaf(this.queuedFocusLeaf)
+            }
 
             this.modal = undefined;
         }

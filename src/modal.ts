@@ -55,6 +55,6 @@ export class GeneralModal extends SuggestModal<string> {
     onChooseSuggestion(item: string, evt: MouseEvent | KeyboardEvent) {}
 
     focusTab(): void {
-        this.plugin.focusLeaf(this.leaves[this.chooser.selectedItem]);
+        this.plugin.queueFocusLeaf(this.leaves[this.chooser.selectedItem]);
     }
 }
