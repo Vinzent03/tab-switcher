@@ -1,7 +1,7 @@
 import { Platform, Plugin, WorkspaceLeaf } from "obsidian";
 import { GeneralModal } from "./modal";
 import CTPSettingTab from "./settingsTab";
-import { DEFAULT_SETTINGS, Settings } from "./types";
+import { DEFAULT_SETTINGS, NEW_USER_SETTINGS, Settings } from "./types";
 
 export default class CycleThroughPanes extends Plugin {
     settings: Settings;
@@ -297,10 +297,13 @@ export default class CycleThroughPanes extends Plugin {
     }
 
     async loadSettings() {
+        // returns null if .obsidian/plugins/cycle-through-panes/data.json does not exist
+        const userSettings = await this.loadData()
+
         this.settings = Object.assign(
             {},
             DEFAULT_SETTINGS,
-            await this.loadData()
+            userSettings ? userSettings : NEW_USER_SETTINGS
         );
     }
 

@@ -11,8 +11,12 @@ export const DEFAULT_SETTINGS: Settings = {
     showModal: true,
     skipPinned: false,
     stayInSplit: true,
-    focusLeafOnKeyUp: false,
+    focusLeafOnKeyUp: false, // opt-in for existing users
 };
+
+export const NEW_USER_SETTINGS: Partial<Settings> = {
+    focusLeafOnKeyUp: true, // default for new users
+}
 
 declare module "obsidian" {
     interface App {
