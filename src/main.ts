@@ -271,6 +271,9 @@ export default class CycleThroughPanes extends Plugin {
         if (e.key == "Control") {
             this.ctrlPressedTimestamp = e.timeStamp;
             this.ctrlKeyCode = e.code;
+
+            // clean slate -- prevent ctrl keystroke from accidentally switching to another tab
+            this.queuedFocusLeaf = undefined
         }
     }
 
@@ -281,7 +284,7 @@ export default class CycleThroughPanes extends Plugin {
 
             this.modal?.close();
 
-            if (this.queueFocusLeaf) {
+            if (this.queuedFocusLeaf) {
                 this.focusLeaf(this.queuedFocusLeaf)
             }
 
