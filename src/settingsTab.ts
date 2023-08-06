@@ -59,6 +59,17 @@ export default class CTPSettingTab extends PluginSettingTab {
                 });
             });
 
+        new Setting(containerEl)
+            .setName("Focus tab on release")
+            .setDesc("If enabled, defer switching tabs until the ctrl key is released, similar to VS Code and Firefox")
+            .addToggle((cb) => {
+                cb.setValue(this.settings.focusLeafOnKeyUp);
+                cb.onChange(async (value) => {
+                    this.settings.focusLeafOnKeyUp = value;
+                    await this.plugin.saveSettings();
+                });
+            });
+
         new Setting(containerEl).setName("Skip pinned tabs").addToggle((cb) => {
             cb.setValue(this.settings.skipPinned);
             cb.onChange(async (value) => {

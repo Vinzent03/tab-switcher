@@ -7,8 +7,6 @@ export default class CycleThroughPanes extends Plugin {
     settings: Settings;
     ctrlPressedTimestamp = 0;
     ctrlKeyCode: string | undefined;
-    // TODO move to settings
-    focusLeafOnKeyUp = true // set to false to restore original behavior
     queuedFocusLeaf: WorkspaceLeaf
     leafIndex = 0;
     modal: GeneralModal | undefined;
@@ -230,7 +228,7 @@ export default class CycleThroughPanes extends Plugin {
     }
 
     queueFocusLeaf(leaf: WorkspaceLeaf) {
-        if (this.focusLeafOnKeyUp) {
+        if (this.settings.focusLeafOnKeyUp) {
             this.queuedFocusLeaf = leaf
         } else {
             this.focusLeaf(leaf)

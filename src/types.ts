@@ -3,6 +3,7 @@ export interface Settings {
     showModal: boolean;
     skipPinned: boolean;
     stayInSplit: boolean;
+    focusLeafOnKeyUp: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -10,6 +11,7 @@ export const DEFAULT_SETTINGS: Settings = {
     showModal: true,
     skipPinned: false,
     stayInSplit: true,
+    focusLeafOnKeyUp: false,
 };
 
 declare module "obsidian" {
