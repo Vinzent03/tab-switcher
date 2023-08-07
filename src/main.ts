@@ -1,12 +1,13 @@
 import { Platform, Plugin, WorkspaceLeaf } from "obsidian";
 import { GeneralModal } from "./modal";
 import CTPSettingTab from "./settingsTab";
-import { DEFAULT_SETTINGS, Settings } from "./types";
+import { DEFAULT_SETTINGS, NEW_USER_SETTINGS, Settings } from "./types";
 
 export default class CycleThroughPanes extends Plugin {
     settings: Settings;
     ctrlPressedTimestamp = 0;
     ctrlKeyCode: string | undefined;
+    queuedFocusLeaf: WorkspaceLeaf;
     leafIndex = 0;
     modal: GeneralModal | undefined;
     leaves: WorkspaceLeaf[];
@@ -69,9 +70,9 @@ export default class CycleThroughPanes extends Plugin {
                         const index = leaves.indexOf(active);
 
                         if (index === leaves.length - 1) {
-                            this.focusLeaf(leaves[0]);
+                            this.queueFocusLeaf(leaves[0]);
                         } else {
-                            this.focusLeaf(leaves[index + 1]);
+                            this.queueFocusLeaf(leaves[index + 1]);
                         }
                     }
                     return true;
@@ -94,9 +95,9 @@ export default class CycleThroughPanes extends Plugin {
 
                         if (index !== undefined) {
                             if (index === 0) {
-                                this.focusLeaf(leaves[leaves.length - 1]);
+                                this.queueFocusLeaf(leaves[leaves.length - 1]);
                             } else {
-                                this.focusLeaf(leaves[index - 1]);
+                                this.queueFocusLeaf(leaves[index - 1]);
                             }
                         }
                     }
@@ -159,7 +160,7 @@ export default class CycleThroughPanes extends Plugin {
                         }
                     }
                 });
-                this.focusLeaf(leaf);
+                this.queueFocusLeaf(leaf);
             },
         });
 
@@ -176,7 +177,7 @@ export default class CycleThroughPanes extends Plugin {
                         }
                     }
                 });
-                this.focusLeaf(leaf);
+                this.queueFocusLeaf(leaf);
             },
         });
 
@@ -197,7 +198,7 @@ export default class CycleThroughPanes extends Plugin {
                 const leaf = leaves[this.leafIndex];
 
                 if (leaf) {
-                    this.focusLeaf(leaf);
+                    this.queueFocusLeaf(leaf);
                 }
             },
         });
@@ -217,13 +218,21 @@ export default class CycleThroughPanes extends Plugin {
                 const leaf = leaves[this.leafIndex];
 
                 if (leaf) {
-                    this.focusLeaf(leaf);
+                    this.queueFocusLeaf(leaf);
                 }
             },
         });
 
         window.addEventListener("keydown", this.keyDownFunc);
         window.addEventListener("keyup", this.keyUpFunc);
+    }
+
+    queueFocusLeaf(leaf: WorkspaceLeaf) {
+        if (this.settings.focusLeafOnKeyUp) {
+            this.queuedFocusLeaf = leaf;
+        } else {
+            this.focusLeaf(leaf);
+        }
     }
 
     focusLeaf(leaf: WorkspaceLeaf) {
@@ -260,6 +269,9 @@ export default class CycleThroughPanes extends Plugin {
         if (e.key == "Control") {
             this.ctrlPressedTimestamp = e.timeStamp;
             this.ctrlKeyCode = e.code;
+
+            // clean slate -- prevent ctrl keystroke from accidentally switching to another tab
+            this.queuedFocusLeaf = undefined;
         }
     }
 
@@ -269,6 +281,10 @@ export default class CycleThroughPanes extends Plugin {
             this.leaves = null;
 
             this.modal?.close();
+
+            if (this.queuedFocusLeaf) {
+                this.focusLeaf(this.queuedFocusLeaf);
+            }
 
             this.modal = undefined;
         }
@@ -281,10 +297,13 @@ export default class CycleThroughPanes extends Plugin {
     }
 
     async loadSettings() {
+        // returns null if .obsidian/plugins/cycle-through-panes/data.json does not exist
+        const userSettings = await this.loadData();
+
         this.settings = Object.assign(
             {},
             DEFAULT_SETTINGS,
-            await this.loadData()
+            userSettings ? userSettings : NEW_USER_SETTINGS
         );
     }
 
