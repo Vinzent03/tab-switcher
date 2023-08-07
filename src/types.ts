@@ -4,18 +4,21 @@ export interface Settings {
     skipPinned: boolean;
     stayInSplit: boolean;
     focusLeafOnKeyUp: boolean;
+    useViewTypes: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
-    viewTypes: ["markdown", "canvas"],
+    viewTypes: ["markdown", "canvas", "pdf"],
     showModal: true,
     skipPinned: false,
     stayInSplit: true,
     focusLeafOnKeyUp: false, // opt-in for existing users
+    useViewTypes: true,
 };
 
 export const NEW_USER_SETTINGS: Partial<Settings> = {
     focusLeafOnKeyUp: true, // default for new users
+    useViewTypes: false,
 };
 
 declare module "obsidian" {

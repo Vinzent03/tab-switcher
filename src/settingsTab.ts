@@ -20,10 +20,20 @@ export default class CTPSettingTab extends PluginSettingTab {
             text: "Cycle through Panes Configuration",
         });
 
+        new Setting(containerEl)
+            .setName("Only cycle through tabs with specific View Types")
+            .addToggle((cb) => {
+                cb.setValue(this.settings.useViewTypes);
+                cb.onChange(async (value) => {
+                    this.settings.useViewTypes = value;
+                    await this.plugin.saveSettings();
+                });
+            });
+
         const descEl = createFragment();
         descEl.append(
             createEl("p", {
-                text: "These are the View Types this Plugin will cycle through using any of the available commands.",
+                text: "If the option above is enabled: These are the View Types this Plugin will cycle through using any of the available commands.",
             }),
             createEl("p", {
                 text: 'To add a new View Type to this List, simply run the Command: "Cycle through Panes: Enable this View Type". More advanced Users can edit and delete the Types in the text field (one per line).',
