@@ -16,7 +16,7 @@ export const DEFAULT_SETTINGS: Settings = {
 
 export const NEW_USER_SETTINGS: Partial<Settings> = {
     focusLeafOnKeyUp: true, // default for new users
-}
+};
 
 declare module "obsidian" {
     interface App {

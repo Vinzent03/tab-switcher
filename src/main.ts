@@ -7,7 +7,7 @@ export default class CycleThroughPanes extends Plugin {
     settings: Settings;
     ctrlPressedTimestamp = 0;
     ctrlKeyCode: string | undefined;
-    queuedFocusLeaf: WorkspaceLeaf
+    queuedFocusLeaf: WorkspaceLeaf;
     leafIndex = 0;
     modal: GeneralModal | undefined;
     leaves: WorkspaceLeaf[];
@@ -229,9 +229,9 @@ export default class CycleThroughPanes extends Plugin {
 
     queueFocusLeaf(leaf: WorkspaceLeaf) {
         if (this.settings.focusLeafOnKeyUp) {
-            this.queuedFocusLeaf = leaf
+            this.queuedFocusLeaf = leaf;
         } else {
-            this.focusLeaf(leaf)
+            this.focusLeaf(leaf);
         }
     }
 
@@ -271,7 +271,7 @@ export default class CycleThroughPanes extends Plugin {
             this.ctrlKeyCode = e.code;
 
             // clean slate -- prevent ctrl keystroke from accidentally switching to another tab
-            this.queuedFocusLeaf = undefined
+            this.queuedFocusLeaf = undefined;
         }
     }
 
@@ -283,7 +283,7 @@ export default class CycleThroughPanes extends Plugin {
             this.modal?.close();
 
             if (this.queuedFocusLeaf) {
-                this.focusLeaf(this.queuedFocusLeaf)
+                this.focusLeaf(this.queuedFocusLeaf);
             }
 
             this.modal = undefined;
@@ -298,7 +298,7 @@ export default class CycleThroughPanes extends Plugin {
 
     async loadSettings() {
         // returns null if .obsidian/plugins/cycle-through-panes/data.json does not exist
-        const userSettings = await this.loadData()
+        const userSettings = await this.loadData();
 
         this.settings = Object.assign(
             {},
