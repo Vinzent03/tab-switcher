@@ -1,10 +1,11 @@
 {
   "id": "cycle-through-panes",
-  "name": "Cycle through Panes",
+  "name": "Tab Switcher",
   "version": "1.2.1",
   "minAppVersion": "0.15.0",
-  "description": "Cycle through your open Panes with `ctrl + Tab`, just like with Tabs in your Browser!, ctrl+shift+Tab for Reverse",
-  "author": "Vinzent03 & phibr0",
-  "authorUrl": "https://github.com/phibr0",
+  "description": "Switch your tabs with Ctrl + Tab in recently used order like in a browser.",
+  "author": "Vinzent & phibr0",
+  "authorUrl": "https://github.com/Vinzent03",
+  "fundingUrl": "https://ko-fi.com/vinzent",
   "isDesktopOnly": false
 }
