@@ -188,16 +188,9 @@ export default class CycleThroughPanes extends Plugin {
             name: "Go to previous tab",
             callback: async () => {
                 this.setLeaves();
-                const leaves = this.leaves;
-                if (this.settings.showModal) {
-                    this.modal = new GeneralModal(leaves, this);
-                    this.leafIndex = await this.modal.open();
-                } else {
-                    this.leafIndex = this.leafIndex + 1;
-                    if (this.leafIndex >= this.leaves.length)
-                        this.leafIndex = 0;
-                }
-                const leaf = leaves[this.leafIndex];
+
+                this.leafIndex = (this.leafIndex + 1) % this.leaves.length;
+                const leaf = this.leaves[this.leafIndex];
 
                 if (leaf) {
                     this.queueFocusLeaf(leaf);
@@ -209,15 +202,10 @@ export default class CycleThroughPanes extends Plugin {
             name: "Go to next tab",
             callback: async () => {
                 this.setLeaves();
-                const leaves = this.leaves;
-                if (this.settings.showModal) {
-                    this.modal = new GeneralModal(leaves, this);
-                    this.leafIndex = await this.modal.open();
-                } else {
-                    this.leafIndex = this.leafIndex - 1;
-                    if (this.leafIndex < 0) this.leafIndex = leaves.length - 1;
-                }
-                const leaf = leaves[this.leafIndex];
+                this.leafIndex =
+                    (this.leafIndex - 1 + this.leaves.length) %
+                    this.leaves.length;
+                const leaf = this.leaves[this.leafIndex];
 
                 if (leaf) {
                     this.queueFocusLeaf(leaf);
@@ -289,6 +277,17 @@ export default class CycleThroughPanes extends Plugin {
             }
 
             this.modal = undefined;
+        }
+
+        if (
+            e.code == "Tab" &&
+            this.ctrlPressedTimestamp &&
+            this.settings.showModal &&
+            !this.modal &&
+            this.leaves
+        ) {
+            this.modal = new GeneralModal(this.leaves, this);
+            this.modal.open();
         }
     }
 
