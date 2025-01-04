@@ -6,7 +6,7 @@ export class GeneralModal extends SuggestModal<string> {
 
     constructor(
         private leaves: WorkspaceLeaf[],
-        private readonly plugin: CycleThroughPanes
+        private readonly plugin: CycleThroughPanes,
     ) {
         super(app);
     }

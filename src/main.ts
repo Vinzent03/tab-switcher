@@ -67,7 +67,7 @@ export default class CycleThroughPanes extends Plugin {
                 if (active) {
                     if (!checking) {
                         const leaves: WorkspaceLeaf[] = this.getLeavesOfTypes(
-                            this.settings.viewTypes
+                            this.settings.viewTypes,
                         );
                         const index = leaves.indexOf(active);
 
@@ -91,7 +91,7 @@ export default class CycleThroughPanes extends Plugin {
                 if (active) {
                     if (!checking) {
                         const leaves: WorkspaceLeaf[] = this.getLeavesOfTypes(
-                            this.settings.viewTypes
+                            this.settings.viewTypes,
                         );
                         const index = leaves.indexOf(active);
 
@@ -139,7 +139,7 @@ export default class CycleThroughPanes extends Plugin {
                 ) {
                     if (!checking) {
                         this.settings.viewTypes.remove(
-                            active.view.getViewType()
+                            active.view.getViewType(),
                         );
                         this.saveSettings();
                     }
@@ -236,7 +236,7 @@ export default class CycleThroughPanes extends Plugin {
             }
             if (leaf.getViewState().type == "search") {
                 const search = leaf.view.containerEl.find(
-                    ".search-input-container input"
+                    ".search-input-container input",
                 );
 
                 search.focus();
@@ -304,7 +304,7 @@ export default class CycleThroughPanes extends Plugin {
         this.settings = Object.assign(
             {},
             DEFAULT_SETTINGS,
-            userSettings ? userSettings : NEW_USER_SETTINGS
+            userSettings ? userSettings : NEW_USER_SETTINGS,
         );
     }
 

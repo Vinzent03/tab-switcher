@@ -37,7 +37,7 @@ export default class CTPSettingTab extends PluginSettingTab {
             }),
             createEl("p", {
                 text: 'To add a new View Type to this List, simply run the Command: "Cycle through Panes: Enable this View Type". More advanced Users can edit and delete the Types in the text field (one per line).',
-            })
+            }),
         );
 
         new Setting(containerEl)
@@ -46,7 +46,7 @@ export default class CTPSettingTab extends PluginSettingTab {
             .addTextArea((cb) => {
                 let value = "";
                 this.settings.viewTypes.forEach(
-                    (type) => (value += type + "\n")
+                    (type) => (value += type + "\n"),
                 );
                 cb.setValue(value);
                 cb.setPlaceholder("markdown");
@@ -72,7 +72,7 @@ export default class CTPSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("Focus tab on release")
             .setDesc(
-                "If enabled, defer switching tabs until the ctrl key is released, similar to VS Code and Firefox"
+                "If enabled, defer switching tabs until the ctrl key is released, similar to VS Code and Firefox",
             )
             .addToggle((cb) => {
                 cb.setValue(this.settings.focusLeafOnKeyUp);
@@ -93,7 +93,7 @@ export default class CTPSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("Stay in current split")
             .setDesc(
-                "If enabled and the currently active file is in the sidebar, you cycle within that sidebar and can't switch to the main tabs. Use the "
+                "If enabled and the currently active file is in the sidebar, you cycle within that sidebar and can't switch to the main tabs. Use the ",
             )
             .addToggle((cb) => {
                 cb.setValue(this.settings.stayInSplit);
