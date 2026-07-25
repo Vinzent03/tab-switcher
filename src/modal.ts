@@ -1,10 +1,10 @@
 import { SuggestModal, WorkspaceLeaf } from "obsidian";
-import CycleThroughPanes from "./main";
+import TaskSwitcherPlugin from "./main";
 
 export class GeneralModal extends SuggestModal<string> {
     constructor(
         private leaves: WorkspaceLeaf[],
-        private readonly plugin: CycleThroughPanes,
+        private readonly plugin: TaskSwitcherPlugin,
     ) {
         super(plugin.app);
     }

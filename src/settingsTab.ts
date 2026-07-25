@@ -2,7 +2,7 @@ import { PluginSettingTab, Setting } from "obsidian";
 import CycleThroughPanes from "./main";
 import { Settings } from "./types";
 
-export default class CTPSettingTab extends PluginSettingTab {
+export default class TabSwitcherSettingTab extends PluginSettingTab {
     settings: Settings;
     plugin: CycleThroughPanes;
 
@@ -33,6 +33,7 @@ export default class CTPSettingTab extends PluginSettingTab {
                 text: "If the option above is enabled: These are the view types this plugin will cycle through using any of the available commands.",
             }),
             createEl("p", {
+                // eslint-disable-next-line obsidianmd/ui/sentence-case -- the name of the plugin is Tab Switcher, so it should be capitalized
                 text: 'To add a new view type to this list, simply run the command: "Tab Switcher: Enable this view type". More advanced users can edit and delete the types in the text field (one per line).',
             }),
         );

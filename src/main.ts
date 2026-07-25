@@ -1,4 +1,4 @@
-import { Platform, Plugin, WorkspaceLeaf } from "obsidian";
+import { ItemView, Platform, Plugin, WorkspaceLeaf } from "obsidian";
 import { GeneralModal } from "./modal";
 import CTPSettingTab from "./settingsTab";
 import { DEFAULT_SETTINGS, NEW_USER_SETTINGS, Settings } from "./types";
@@ -17,7 +17,7 @@ export default class TaskSwitcherPlugin extends Plugin {
 
     getLeavesOfTypes(types: string[]): WorkspaceLeaf[] {
         const leaves: WorkspaceLeaf[] = [];
-        const activeLeaf = this.app.workspace.activeLeaf;
+        const activeLeaf = this.app.workspace.getActiveViewOfType(ItemView)?.leaf;
         if (!activeLeaf) {
             return leaves;
         }
@@ -64,14 +64,14 @@ export default class TaskSwitcherPlugin extends Plugin {
             id: "cycle-through-panes",
             name: "Go to right tab",
             checkCallback: (checking: boolean) => {
-                const active = this.app.workspace.activeLeaf;
+                const active = this.app.workspace.getActiveViewOfType(ItemView);
 
                 if (active) {
                     if (!checking) {
                         const leaves: WorkspaceLeaf[] = this.getLeavesOfTypes(
                             this.settings.viewTypes,
                         );
-                        const index = leaves.indexOf(active);
+                        const index = leaves.indexOf(active.leaf);
 
                         const nextLeaf =
                             index === leaves.length - 1
@@ -91,7 +91,7 @@ export default class TaskSwitcherPlugin extends Plugin {
             id: "cycle-through-panes-reverse",
             name: "Go to left tab",
             checkCallback: (checking: boolean) => {
-                const active = this.app.workspace.activeLeaf;
+                const active = this.app.workspace.getActiveViewOfType(ItemView)?.leaf;
                 if (active) {
                     if (!checking) {
                         const leaves: WorkspaceLeaf[] = this.getLeavesOfTypes(
@@ -117,9 +117,9 @@ export default class TaskSwitcherPlugin extends Plugin {
 
         this.addCommand({
             id: "cycle-through-panes-add-view",
-            name: "Enable this View Type",
+            name: "Enable this view type",
             checkCallback: (checking: boolean) => {
-                const active = this.app.workspace.activeLeaf;
+                const active = this.app.workspace.getActiveViewOfType(ItemView)?.leaf;
                 if (
                     active &&
                     !this.settings.viewTypes.contains(active.view.getViewType())
@@ -136,9 +136,9 @@ export default class TaskSwitcherPlugin extends Plugin {
 
         this.addCommand({
             id: "cycle-through-panes-remove-view",
-            name: "Disable this View Type",
+            name: "Disable this view type",
             checkCallback: (checking: boolean) => {
-                const active = this.app.workspace.activeLeaf;
+                const active = this.app.workspace.getActiveViewOfType(ItemView)?.leaf;
                 if (
                     active &&
                     this.settings.viewTypes.contains(active.view.getViewType())
@@ -275,7 +275,7 @@ export default class TaskSwitcherPlugin extends Plugin {
                 return b.activeTime - a.activeTime;
             });
             this.leaves = leaves;
-            const activeLeaf = this.app.workspace.activeLeaf;
+            const activeLeaf = this.app.workspace.getActiveViewOfType(ItemView)?.leaf;
             this.leafIndex = activeLeaf ? leaves.indexOf(activeLeaf) : -1;
         }
     }
