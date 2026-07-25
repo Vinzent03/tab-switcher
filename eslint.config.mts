@@ -32,7 +32,6 @@ export default defineConfig(
     {
         rules: {
             "obsidianmd/commands/no-plugin-id-in-command-id": "off",
-            "eslint-comments/no-restricted-disable": "off",
         },
     },
 );
