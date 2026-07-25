@@ -13,7 +13,9 @@ export class GeneralModal extends SuggestModal<string> {
         this.dimBackground = false;
         super.open();
 
-        this.chooser.setSelectedItem(1);
+        const initialIndex =
+            this.plugin.leafIndex >= 0 ? this.plugin.leafIndex : 0;
+        this.chooser.setSelectedItem(initialIndex);
         this.focusTab();
 
         this.containerEl
@@ -45,6 +47,7 @@ export class GeneralModal extends SuggestModal<string> {
     onChooseSuggestion(_: string, __: MouseEvent | KeyboardEvent) {}
 
     focusTab(): void {
+        this.plugin.leafIndex = this.chooser.selectedItem;
         const leaf = this.leaves[this.chooser.selectedItem];
         if (leaf) {
             this.plugin.queueFocusLeaf(leaf);
