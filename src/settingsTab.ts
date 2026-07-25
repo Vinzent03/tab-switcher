@@ -16,12 +16,9 @@ export default class CTPSettingTab extends PluginSettingTab {
         const { containerEl } = this;
 
         containerEl.empty();
-        containerEl.createEl("h2", {
-            text: "Cycle through Panes Configuration",
-        });
 
         new Setting(containerEl)
-            .setName("Only cycle through tabs with specific View Types")
+            .setName("Only cycle through tabs with specific view types")
             .addToggle((cb) => {
                 cb.setValue(this.settings.useViewTypes);
                 cb.onChange(async (value) => {
@@ -33,15 +30,15 @@ export default class CTPSettingTab extends PluginSettingTab {
         const descEl = createFragment();
         descEl.append(
             createEl("p", {
-                text: "If the option above is enabled: These are the View Types this Plugin will cycle through using any of the available commands.",
+                text: "If the option above is enabled: These are the view types this plugin will cycle through using any of the available commands.",
             }),
             createEl("p", {
-                text: 'To add a new View Type to this List, simply run the Command: "Cycle through Panes: Enable this View Type". More advanced Users can edit and delete the Types in the text field (one per line).',
+                text: 'To add a new view type to this list, simply run the command: "Tab Switcher: Enable this view type". More advanced users can edit and delete the types in the text field (one per line).',
             }),
         );
 
         new Setting(containerEl)
-            .setName("Enabled View Types")
+            .setName("Enabled view types")
             .setDesc(descEl)
             .addTextArea((cb) => {
                 let value = "";
@@ -49,7 +46,7 @@ export default class CTPSettingTab extends PluginSettingTab {
                     (type) => (value += type + "\n"),
                 );
                 cb.setValue(value);
-                cb.setPlaceholder("markdown");
+                cb.setPlaceholder("Markdown");
                 cb.onChange(async (newValue) => {
                     //                                                    No empty lines
                     this.settings.viewTypes = newValue
@@ -72,7 +69,7 @@ export default class CTPSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("Focus tab on release")
             .setDesc(
-                "If enabled, defer switching tabs until the ctrl key is released, similar to VS Code and Firefox",
+                "If enabled, defer switching tabs until the ctrl key is released, similar to VS Code and firefox",
             )
             .addToggle((cb) => {
                 cb.setValue(this.settings.focusLeafOnKeyUp);
@@ -93,7 +90,7 @@ export default class CTPSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName("Stay in current split")
             .setDesc(
-                "If enabled and the currently active file is in the sidebar, you cycle within that sidebar and can't switch to the main tabs. Use the ",
+                "If enabled and the current active file is in the sidebar, you cycle within that sidebar and can't switch to the main tabs.",
             )
             .addToggle((cb) => {
                 cb.setValue(this.settings.stayInSplit);

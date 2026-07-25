@@ -3,14 +3,14 @@ import { GeneralModal } from "./modal";
 import CTPSettingTab from "./settingsTab";
 import { DEFAULT_SETTINGS, NEW_USER_SETTINGS, Settings } from "./types";
 
-export default class CycleThroughPanes extends Plugin {
-    settings: Settings;
+export default class TaskSwitcherPlugin extends Plugin {
+    settings!: Settings;
     ctrlPressedTimestamp = 0;
     ctrlKeyCode: string | undefined;
-    queuedFocusLeaf: WorkspaceLeaf;
+    queuedFocusLeaf: WorkspaceLeaf | undefined;
     leafIndex = 0;
     modal: GeneralModal | undefined;
-    leaves: WorkspaceLeaf[];
+    leaves: WorkspaceLeaf[] | null = null;
 
     keyDownFunc = this.onKeyDown.bind(this);
     keyUpFunc = this.onKeyUp.bind(this);
@@ -18,6 +18,10 @@ export default class CycleThroughPanes extends Plugin {
     getLeavesOfTypes(types: string[]): WorkspaceLeaf[] {
         const leaves: WorkspaceLeaf[] = [];
         const activeLeaf = this.app.workspace.activeLeaf;
+        if (!activeLeaf) {
+            return leaves;
+        }
+
         this.app.workspace.iterateAllLeaves((leaf) => {
             if (this.settings.skipPinned && leaf.getViewState().pinned) return;
 
@@ -52,8 +56,6 @@ export default class CycleThroughPanes extends Plugin {
     }
 
     async onload() {
-        console.log("loading plugin: Cycle through panes");
-
         await this.loadSettings();
 
         this.addSettingTab(new CTPSettingTab(this, this.settings));
@@ -71,10 +73,12 @@ export default class CycleThroughPanes extends Plugin {
                         );
                         const index = leaves.indexOf(active);
 
-                        if (index === leaves.length - 1) {
-                            this.queueFocusLeaf(leaves[0]);
-                        } else {
-                            this.queueFocusLeaf(leaves[index + 1]);
+                        const nextLeaf =
+                            index === leaves.length - 1
+                                ? leaves[0]
+                                : leaves[index + 1];
+                        if (nextLeaf) {
+                            this.queueFocusLeaf(nextLeaf);
                         }
                     }
                     return true;
@@ -95,11 +99,13 @@ export default class CycleThroughPanes extends Plugin {
                         );
                         const index = leaves.indexOf(active);
 
-                        if (index !== undefined) {
-                            if (index === 0) {
-                                this.queueFocusLeaf(leaves[leaves.length - 1]);
-                            } else {
-                                this.queueFocusLeaf(leaves[index - 1]);
+                        if (index !== -1) {
+                            const previousLeaf =
+                                index === 0
+                                    ? leaves[leaves.length - 1]
+                                    : leaves[index - 1];
+                            if (previousLeaf) {
+                                this.queueFocusLeaf(previousLeaf);
                             }
                         }
                     }
@@ -120,7 +126,7 @@ export default class CycleThroughPanes extends Plugin {
                 ) {
                     if (!checking) {
                         this.settings.viewTypes.push(active.view.getViewType());
-                        this.saveSettings();
+                        void this.saveSettings();
                     }
                     return true;
                 }
@@ -141,7 +147,7 @@ export default class CycleThroughPanes extends Plugin {
                         this.settings.viewTypes.remove(
                             active.view.getViewType(),
                         );
-                        this.saveSettings();
+                        void this.saveSettings();
                     }
                     return true;
                 }
@@ -153,16 +159,22 @@ export default class CycleThroughPanes extends Plugin {
             id: "focus-left-sidebar",
             name: "Focus on left sidebar",
             callback: () => {
-                app.workspace.leftSplit.expand();
-                let leaf: WorkspaceLeaf;
-                app.workspace.iterateAllLeaves((e) => {
-                    if (e.getRoot() == app.workspace.leftSplit) {
-                        if (e.activeTime > (leaf?.activeTime || 0)) {
-                            leaf = e;
+                this.app.workspace.leftSplit.expand();
+                let leaf: WorkspaceLeaf | undefined;
+                this.app.workspace.iterateAllLeaves((workspaceLeaf) => {
+                    if (
+                        workspaceLeaf.getRoot() == this.app.workspace.leftSplit
+                    ) {
+                        if (
+                            workspaceLeaf.activeTime > (leaf?.activeTime || 0)
+                        ) {
+                            leaf = workspaceLeaf;
                         }
                     }
                 });
-                this.queueFocusLeaf(leaf);
+                if (leaf) {
+                    this.queueFocusLeaf(leaf);
+                }
             },
         });
 
@@ -170,16 +182,22 @@ export default class CycleThroughPanes extends Plugin {
             id: "focus-right-sidebar",
             name: "Focus on right sidebar",
             callback: () => {
-                app.workspace.rightSplit.expand();
-                let leaf: WorkspaceLeaf;
-                app.workspace.iterateAllLeaves((e) => {
-                    if (e.getRoot() == app.workspace.rightSplit) {
-                        if (e.activeTime > (leaf?.activeTime || 0)) {
-                            leaf = e;
+                this.app.workspace.rightSplit.expand();
+                let leaf: WorkspaceLeaf | undefined;
+                this.app.workspace.iterateAllLeaves((workspaceLeaf) => {
+                    if (
+                        workspaceLeaf.getRoot() == this.app.workspace.rightSplit
+                    ) {
+                        if (
+                            workspaceLeaf.activeTime > (leaf?.activeTime || 0)
+                        ) {
+                            leaf = workspaceLeaf;
                         }
                     }
                 });
-                this.queueFocusLeaf(leaf);
+                if (leaf) {
+                    this.queueFocusLeaf(leaf);
+                }
             },
         });
 
@@ -188,9 +206,13 @@ export default class CycleThroughPanes extends Plugin {
             name: "Go to previous tab",
             callback: async () => {
                 this.setLeaves();
+                const leaves = this.leaves;
+                if (!leaves?.length) {
+                    return;
+                }
 
-                this.leafIndex = (this.leafIndex + 1) % this.leaves.length;
-                const leaf = this.leaves[this.leafIndex];
+                this.leafIndex = (this.leafIndex + 1) % leaves.length;
+                const leaf = leaves[this.leafIndex];
 
                 if (leaf) {
                     this.queueFocusLeaf(leaf);
@@ -202,10 +224,14 @@ export default class CycleThroughPanes extends Plugin {
             name: "Go to next tab",
             callback: async () => {
                 this.setLeaves();
+                const leaves = this.leaves;
+                if (!leaves?.length) {
+                    return;
+                }
+
                 this.leafIndex =
-                    (this.leafIndex - 1 + this.leaves.length) %
-                    this.leaves.length;
-                const leaf = this.leaves[this.leafIndex];
+                    (this.leafIndex - 1 + leaves.length) % leaves.length;
+                const leaf = leaves[this.leafIndex];
 
                 if (leaf) {
                     this.queueFocusLeaf(leaf);
@@ -226,21 +252,19 @@ export default class CycleThroughPanes extends Plugin {
     }
 
     focusLeaf(leaf: WorkspaceLeaf) {
-        if (leaf) {
-            const root = leaf.getRoot();
-            if (root != this.app.workspace.rootSplit && Platform.isMobile) {
-                root.openLeaf(leaf);
-                leaf.activeTime = Date.now();
-            } else {
-                this.app.workspace.setActiveLeaf(leaf, { focus: true });
-            }
-            if (leaf.getViewState().type == "search") {
-                const search = leaf.view.containerEl.find(
-                    ".search-input-container input",
-                );
+        const root = leaf.getRoot();
+        if (root != this.app.workspace.rootSplit && Platform.isMobile) {
+            root.openLeaf(leaf);
+            leaf.activeTime = Date.now();
+        } else {
+            this.app.workspace.setActiveLeaf(leaf, { focus: true });
+        }
+        if (leaf.getViewState().type == "search") {
+            const search = leaf.view.containerEl.find(
+                ".search-input-container input",
+            );
 
-                search.focus();
-            }
+            search?.focus();
         }
     }
 
@@ -251,7 +275,8 @@ export default class CycleThroughPanes extends Plugin {
                 return b.activeTime - a.activeTime;
             });
             this.leaves = leaves;
-            this.leafIndex = leaves.indexOf(this.app.workspace.activeLeaf);
+            const activeLeaf = this.app.workspace.activeLeaf;
+            this.leafIndex = activeLeaf ? leaves.indexOf(activeLeaf) : -1;
         }
     }
 
@@ -287,19 +312,19 @@ export default class CycleThroughPanes extends Plugin {
             this.leaves
         ) {
             this.modal = new GeneralModal(this.leaves, this);
-            this.modal.open();
+            void this.modal.open();
         }
     }
 
     onunload() {
-        console.log("unloading plugin: Cycle through panes");
         window.removeEventListener("keydown", this.keyDownFunc);
         window.removeEventListener("keyup", this.keyUpFunc);
     }
 
     async loadSettings() {
         // returns null if .obsidian/plugins/cycle-through-panes/data.json does not exist
-        const userSettings = await this.loadData();
+        const userSettings =
+            (await this.loadData()) as Partial<Settings> | null;
 
         this.settings = Object.assign(
             {},

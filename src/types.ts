@@ -39,8 +39,6 @@ declare module "obsidian" {
 
     interface Modal {
         chooser: {
-            moveDown: any;
-            moveUp: any;
             selectedItem: number;
             setSelectedItem: (index: number) => void;
         };
