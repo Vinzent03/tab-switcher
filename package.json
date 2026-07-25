@@ -1,28 +1,29 @@
 {
-    "name": "obsidian-sample-plugin",
+    "name": "cycle-through-panes",
     "version": "1.4.0",
-    "description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+    "description": "Switch your tabs with Ctrl + Tab in recently used order like in a browser.",
     "main": "main.js",
+    "type": "module",
+    "packageManager": "pnpm@11.9.0",
     "scripts": {
-        "dev": "rollup --config rollup.config.js -w",
-        "build": "rollup --config rollup.config.js",
-        "release": "standard-version"
+        "dev": "node esbuild.config.mjs",
+        "build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+        "version": "node version-bump.mjs && git add manifest.json versions.json",
+        "lint": "eslint ."
     },
     "keywords": [],
-    "author": "",
+    "author": "Vinzent & phibr0",
     "license": "MIT",
-    "standard-version": {
-        "t": ""
-    },
     "devDependencies": {
-        "@rollup/plugin-commonjs": "^15.1.0",
-        "@rollup/plugin-node-resolve": "^9.0.0",
-        "@rollup/plugin-typescript": "^6.0.0",
-        "@types/node": "^14.14.2",
-        "obsidian": "^1.1.1",
-        "standard-version": "^9.5.0",
-        "rollup": "^2.32.1",
-        "tslib": "^2.0.3",
-        "typescript": "^4.0.3"
+        "@eslint/js": "^9.39.4",
+        "@types/node": "^22.15.17",
+        "esbuild": "0.25.5",
+        "eslint": "^9.39.4",
+        "eslint-plugin-obsidianmd": "^0.4.0",
+        "globals": "^17.6.0",
+        "jiti": "^2.6.1",
+        "obsidian": "latest",
+        "typescript": "^5.8.3",
+        "typescript-eslint": "^8.59.1"
     }
 }
