@@ -1,7 +1,7 @@
 import { SuggestModal, WorkspaceLeaf } from "obsidian";
 import TaskSwitcherPlugin from "./main";
 
-export class GeneralModal extends SuggestModal<string> {
+export class GeneralModal extends SuggestModal<WorkspaceLeaf> {
     constructor(
         private leaves: WorkspaceLeaf[],
         private readonly plugin: TaskSwitcherPlugin,
@@ -36,15 +36,31 @@ export class GeneralModal extends SuggestModal<string> {
         });
     }
 
-    getSuggestions(_: string): string[] {
-        return this.leaves.map((leaf) => leaf.view.getDisplayText());
+    getSuggestions(_: string): WorkspaceLeaf[] {
+        return this.leaves;
     }
 
-    renderSuggestion(value: string, el: HTMLElement): void {
-        el.setText(value);
+    renderSuggestion(leaf: WorkspaceLeaf, el: HTMLElement): void {
+        el.setText(leaf.view.getDisplayText());
+        el.addEventListener("mouseenter", () => {
+            const index = this.leaves.indexOf(leaf);
+            if (index >= 0) {
+                this.chooser.setSelectedItem(index);
+                this.focusTab();
+            }
+        });
     }
 
-    onChooseSuggestion(_: string, __: MouseEvent | KeyboardEvent) {}
+    onChooseSuggestion(leaf: WorkspaceLeaf, _: MouseEvent | KeyboardEvent) {
+        const index = this.leaves.indexOf(leaf);
+        if (index >= 0) {
+            this.chooser.setSelectedItem(index);
+            this.plugin.leafIndex = index;
+        }
+
+        this.plugin.focusLeaf(leaf);
+        this.plugin.queuedFocusLeaf = leaf;
+    }
 
     focusTab(): void {
         this.plugin.leafIndex = this.chooser.selectedItem;
