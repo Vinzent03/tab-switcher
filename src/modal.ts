@@ -1,10 +1,12 @@
-import { SuggestModal, WorkspaceLeaf } from "obsidian";
+import { Hotkey, SuggestModal, WorkspaceLeaf } from "obsidian";
 import TaskSwitcherPlugin from "./main";
 
 export class GeneralModal extends SuggestModal<WorkspaceLeaf> {
     constructor(
         private leaves: WorkspaceLeaf[],
         private readonly plugin: TaskSwitcherPlugin,
+        private readonly forwardHotkeys: Hotkey[],
+        private readonly reverseHotkeys: Hotkey[],
     ) {
         super(plugin.app);
     }
@@ -23,17 +25,8 @@ export class GeneralModal extends SuggestModal<WorkspaceLeaf> {
             .item(0)
             ?.detach();
 
-        // hotkey = this.app.hotkeyManager.bakedIds.find((e)=>e == "")
-
-        this.scope.register(["Ctrl"], "Tab", (_) => {
-            this.chooser.setSelectedItem(this.chooser.selectedItem + 1);
-            this.focusTab();
-        });
-
-        this.scope.register(["Ctrl", "Shift"], "Tab", (_) => {
-            this.chooser.setSelectedItem(this.chooser.selectedItem - 1);
-            this.focusTab();
-        });
+        this.registerHotkeys(this.forwardHotkeys, 1);
+        this.registerHotkeys(this.reverseHotkeys, -1);
     }
 
     getSuggestions(_: string): WorkspaceLeaf[] {
@@ -68,5 +61,16 @@ export class GeneralModal extends SuggestModal<WorkspaceLeaf> {
         if (leaf) {
             this.plugin.queueFocusLeaf(leaf);
         }
+    }
+
+    private registerHotkeys(hotkeys: Hotkey[], direction: 1 | -1): void {
+        hotkeys.forEach((hotkey) => {
+            this.scope.register(hotkey.modifiers, hotkey.key, (_) => {
+                this.chooser.setSelectedItem(
+                    this.chooser.selectedItem + direction,
+                );
+                this.focusTab();
+            });
+        });
     }
 }

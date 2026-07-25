@@ -7,6 +7,8 @@ export interface Settings {
     useViewTypes: boolean;
 }
 
+export type ModifierKey = "Control" | "Meta" | "Alt" | "Shift";
+
 export const DEFAULT_SETTINGS: Settings = {
     viewTypes: ["markdown", "canvas", "pdf"],
     showModal: true,
@@ -22,10 +24,16 @@ export const NEW_USER_SETTINGS: Partial<Settings> = {
 };
 
 declare module "obsidian" {
+    interface Command {
+        id: string;
+    }
+
     interface App {
+        commands: {
+            commands: Record<string, Command>;
+        };
         hotkeyManager: {
-            bakedIds: string[];
-            bakedHotkeys: { modifiers: string; key: string }[];
+            customKeys: Record<string, Hotkey[] | undefined>;
         };
     }
 
