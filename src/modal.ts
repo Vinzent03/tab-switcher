@@ -35,9 +35,9 @@ export class GeneralModal extends SuggestModal<WorkspaceLeaf> {
 
     renderSuggestion(leaf: WorkspaceLeaf, el: HTMLElement): void {
         el.setText(leaf.view.getDisplayText());
-        el.addEventListener("mouseenter", () => {
+        el.addEventListener("mousemove", () => {
             const index = this.leaves.indexOf(leaf);
-            if (index >= 0) {
+            if (index >= 0 && index !== this.chooser.selectedItem) {
                 this.chooser.setSelectedItem(index);
                 this.focusTab();
             }
