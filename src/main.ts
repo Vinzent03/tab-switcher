@@ -27,6 +27,7 @@ export default class TaskSwitcherPlugin extends Plugin {
     leaves: WorkspaceLeaf[] | null = null;
     keyDownFunc = this.onKeyDown.bind(this);
     keyUpFunc = this.onKeyUp.bind(this);
+    windowBlurFunc = this.onWindowBlur.bind(this);
 
     getLeavesOfTypes(types: string[]): WorkspaceLeaf[] {
         const leaves: WorkspaceLeaf[] = [];
@@ -294,8 +295,9 @@ export default class TaskSwitcherPlugin extends Plugin {
             },
         });
 
-        window.addEventListener("keydown", this.keyDownFunc);
-        window.addEventListener("keyup", this.keyUpFunc);
+        window.addEventListener("keydown", this.keyDownFunc, true);
+        window.addEventListener("keyup", this.keyUpFunc, true);
+        window.addEventListener("blur", this.windowBlurFunc);
     }
 
     queueFocusLeaf(leaf: WorkspaceLeaf) {
@@ -339,37 +341,43 @@ export default class TaskSwitcherPlugin extends Plugin {
     }
 
     onKeyDown(e: KeyboardEvent) {
-        const modifier = this.getModifierFromKey(e.key);
-        if (!modifier) {
-            return;
-        }
+        this.syncPressedModifiers(e);
 
-        this.pressedModifiers.add(modifier);
+        // Modifier key-up events can be lost when the OS handles a shortcut.
+        // Reconcile the active cycle on the next event so it cannot stay stuck.
+        if (
+            this.activeHoldModifier &&
+            !this.pressedModifiers.has(this.activeHoldModifier)
+        ) {
+            this.finishHeldNavigation();
+        }
     }
 
     onKeyUp(e: KeyboardEvent) {
-        const releasedModifier = this.getModifierFromKey(e.key);
-        if (releasedModifier) {
-            this.pressedModifiers.delete(releasedModifier);
-        }
+        this.syncPressedModifiers(e);
 
-        if (!this.isHeldModifierRelease(e)) {
+        if (
+            !this.activeHoldModifier ||
+            this.pressedModifiers.has(this.activeHoldModifier)
+        ) {
             return;
         }
 
-        this.activeHoldModifier = null;
-        this.modal?.close();
+        this.finishHeldNavigation();
+    }
 
-        if (this.queuedFocusLeaf) {
-            this.focusLeaf(this.queuedFocusLeaf);
+    onWindowBlur() {
+        this.pressedModifiers.clear();
+
+        if (this.activeHoldModifier) {
+            this.finishHeldNavigation();
         }
-
-        this.resetCycleState();
     }
 
     onunload() {
-        window.removeEventListener("keydown", this.keyDownFunc);
-        window.removeEventListener("keyup", this.keyUpFunc);
+        window.removeEventListener("keydown", this.keyDownFunc, true);
+        window.removeEventListener("keyup", this.keyUpFunc, true);
+        window.removeEventListener("blur", this.windowBlurFunc);
     }
 
     async loadSettings() {
@@ -417,14 +425,6 @@ export default class TaskSwitcherPlugin extends Plugin {
         }
     }
 
-    private isHeldModifierRelease(event: KeyboardEvent): boolean {
-        if (!this.activeHoldModifier) {
-            return false;
-        }
-
-        return event.key === this.activeHoldModifier;
-    }
-
     private getHeldModifier(): ModifierKey | null {
         if (this.pressedModifiers.has("Meta")) {
             return "Meta";
@@ -451,6 +451,34 @@ export default class TaskSwitcherPlugin extends Plugin {
                 return key;
             default:
                 return null;
+        }
+    }
+
+    private syncPressedModifiers(event: KeyboardEvent): void {
+        const modifierStates: [ModifierKey, boolean][] = [
+            ["Control", event.ctrlKey],
+            ["Meta", event.metaKey],
+            ["Alt", event.altKey],
+            ["Shift", event.shiftKey],
+        ];
+
+        modifierStates.forEach(([modifier, pressed]) => {
+            if (pressed) {
+                this.pressedModifiers.add(modifier);
+            } else {
+                this.pressedModifiers.delete(modifier);
+            }
+        });
+
+        // Keep modifier-key events reliable even if a platform reports its
+        // aggregate flag inconsistently on the modifier's own event.
+        const eventModifier = this.getModifierFromKey(event.key);
+        if (eventModifier) {
+            if (event.type === "keydown") {
+                this.pressedModifiers.add(eventModifier);
+            } else {
+                this.pressedModifiers.delete(eventModifier);
+            }
         }
     }
 
@@ -492,6 +520,19 @@ export default class TaskSwitcherPlugin extends Plugin {
         this.activeCycleMode = null;
         this.activeForwardCommandId = null;
         this.activeReverseCommandId = null;
+    }
+
+    private finishHeldNavigation(): void {
+        this.activeHoldModifier = null;
+        this.modal?.close();
+
+        const queuedFocusLeaf = this.queuedFocusLeaf;
+        this.queuedFocusLeaf = undefined;
+        if (queuedFocusLeaf) {
+            this.focusLeaf(queuedFocusLeaf);
+        }
+
+        this.resetCycleState();
     }
 
     private getScopedCommandId(commandId: string): string {
